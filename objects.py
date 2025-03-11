@@ -5,9 +5,8 @@
 from mesa import Agent, Model
 from model import NuclearModel
 class Radioactivity(Agent):
-    def __init__(self, model : NuclearModel, zone : str, radioactivity : float):
-        super.__init__(model)
-        self.zone = zone
+    def __init__(self, model : NuclearModel, radioactivity : float, unique_id):
+        super.__init__(unique_id ,model)
         self.radioactivity = radioactivity
 
 class Waste(Agent):

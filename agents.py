@@ -5,22 +5,21 @@
 from mesa.datacollection import DataCollector
 from mesa import Agent, Model
 
+from model import NuclearModel
 def update(knowledge, percepts, actions):
     if percepts:
         knowledge["percepts"].append(percepts)
+    if actions:
         knowledge["actions"].append(actions)
 
-
-class Action():
-
-class greenAgent(Agent):
-    def __init__(self, model):
+class NuclearAgent(Agent):
+    def __init__(self, model : NuclearModel, color):
         super.__init__(model)
-        self.color = "green"
+        self.color = color
         self.knwoledge = {
             "percepts" : [],
             "actions" : [],
-            "max_waste" : 2,
+            "max_waste" : self.model.max_wastes,
             "last_pos" : (0,0),
             "grid_width" : self.model.width,
             "grid_heigth" : self.model.heigth
@@ -42,16 +41,7 @@ class greenAgent(Agent):
     def last_percept(self):
         return self.percept
 
-
-
-# class yellowAgent(Agent):
-#     def __init__(self, model):
-#         super.__init__(model)
-# class redAgent(Agent): 
-#     def __init__(self, model):
-#         super.__init__(model)
-
-    def step_agent (self):
+    def step_agent(self):
         update(self.knowledge, self.percept, self.action)
         action = self.deliberate()
         self.action = action

@@ -7,18 +7,22 @@ from mesa.space import MultiGrid
 from mesa.datacollection import DataCollector
 
 from agents import greenAgent
+from objects import Radioactivity
 
+import random
 class NuclearModel(Model):
     def __init__(
             self,
             width=10,
             height=10,
             n_green_agents=1,
-            n_yellow_agents=0,
-            n_red_agents=0,
+            n_yellow_agents=1,
+            n_red_agents=1,
             n_wastes=1,
+            max_wastes=2,
             seed=None):
         super.__init__(seed=seed)
+
         self.width=width
         self.heigth=height
         self.n_green_agents=n_green_agents
@@ -26,7 +30,12 @@ class NuclearModel(Model):
         self.n_red_agents=n_red_agents
         self.n_agents=n_green_agents+n_yellow_agents+n_red_agents
         self.n_wastes=n_wastes
-        self.wastes_remaining=n_wastes
+        self.n_wastes_remaining=n_wastes
+        self.max_wastes=max_wastes,
+        self.red_wastes_remaining = 0
+        self.yellow_wastes_remaining = 0
+        self.green_wastes_remaining = 0
+        self.obj_id=0
         
         self.grid = MultiGrid(width, height, True)
 
@@ -39,7 +48,16 @@ class NuclearModel(Model):
             # Add the agent to a random grid cell
             self.grid.place_agent(a, (i, j))
 
-        init_agent
+        # Créer les agents
+        width_zone=self.width//3
+        id, radio, model
+        def initialize_zones(x1, x2, radio_range, env, id):
+            for i in range(x1,x2):
+                for j in range(self.height):
+                    if i==self.width-1 and j == self.height:
+                        a = Radioactivity(id, DESPOSIT_RADIOACTIVITY, env)
+                    else:
+                        a=Radioactivity(id,random.uniform(*radio_range),env)
 
 
     def step(self):
