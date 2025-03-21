@@ -39,7 +39,7 @@ model_params = {
         "type": "SliderInt",
         "value": 9,
         "label": "Grid width",
-        "min": 3,
+        "min": 5,
         "max": 50,
         "step": 1},
 
@@ -47,7 +47,7 @@ model_params = {
         "type": "SliderInt",
         "value": 3,
         "label": "Grid height",
-        "min": 1,
+        "min": 3,
         "max": 50,
         "step": 1},
     

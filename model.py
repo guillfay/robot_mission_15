@@ -38,9 +38,11 @@ class RobotMission(Model):
         
         # Création des robots
         self.green_agents = GreenRobot.create_agents(model=self, n=n_green)
+        self.yellow_agents = YellowRobot.create_agents(model=self, n=n_yellow)
+        self.red_agents = RedRobot.create_agents(model=self, n=n_red)
         # self.green_robot = GreenRobot(self)
-        self.yellow_robot = YellowRobot(self)
-        self.red_robot = RedRobot(self)
+        # self.yellow_robot = YellowRobot(self)
+        # self.red_robot = RedRobot(self)
         
         # Placement des robots dans leurs zones respectives
         self.setup_robots()
@@ -78,13 +80,19 @@ class RobotMission(Model):
             green_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_GREEN[1]), random.randint(0, self.grid.height - 1))
             self.grid.place_agent(agent, green_pos)
         
-        # Robot jaune dans la zone jaune
-        yellow_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_YELLOW[1]), random.randint(0, self.grid.height - 1))
-        self.grid.place_agent(self.yellow_robot, yellow_pos)
         
-        # Robot rouge dans la zone rouge
-        red_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_RED[1]), random.randint(0, self.grid.height - 1))
-        self.grid.place_agent(self.red_robot, red_pos)
+        # yellow_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_YELLOW[1]), random.randint(0, self.grid.height - 1))
+        # self.grid.place_agent(self.yellow_robot, yellow_pos)
+
+        # Robot jaune dans la zone verte ou jaune
+        for agent in self.yellow_agents:
+            yellow_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_YELLOW[1]), random.randint(0, self.grid.height - 1))
+            self.grid.place_agent(agent, yellow_pos)
+        
+        # Robot rouge dans la zone verte, jaune ou rouge
+        for agent in self.red_agents:
+            red_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_RED[1]), random.randint(0, self.grid.height - 1))
+            self.grid.place_agent(agent, red_pos)
 
     def setup_initial_waste(self):
         """Place un déchet initial dans la zone verte."""
@@ -170,8 +178,9 @@ class RobotMission(Model):
             # Vérifier si la position est dans les zones autorisées du robot
             if self.is_position_allowed(agent, pos):
                 possible_moves.append(pos)
-        
+
         if possible_moves:
+
             new_position = random.choice(possible_moves)
             self.grid.move_agent(agent, new_position)
             print(f"{agent.robot_type} robot moved to {new_position}")
@@ -209,31 +218,32 @@ class RobotMission(Model):
         # Définir les zones autorisées en fonction du type de robot
         if agent.robot_type == "green":
             # Robot vert: uniquement zone verte (colonnes 0-2)
-            return self.ZONE_GREEN[0] <= x <= self.ZONE_GREEN[-1]
+            return self.ZONE_GREEN[0] <= x <= self.ZONE_GREEN[1]
         elif agent.robot_type == "yellow":
             # Robot jaune: zone jaune (colonnes 3-5) + dernière colonne verte (colonne 2)
-            return self.ZONE_YELLOW[0] <= x <= self.ZONE_YELLOW[-1] or x == self.ZONE_GREEN[-1]
+            return self.ZONE_GREEN[0] <= x <= self.ZONE_YELLOW[1]
         elif agent.robot_type == "red":
             # Robot rouge: zone rouge (colonnes 6-8) + dernière colonne jaune (colonne 5)
-            return self.ZONE_RED[0] <= x <= self.ZONE_RED[-1] or x == self.ZONE_YELLOW[-1]
+            return self.ZONE_GREEN[0] <= x <= self.ZONE_RED[1]+1
         
         return False
     
     def checkdrop(self, agent):
         """Vérifie si un robot est sur la dernière colonne de sa zone."""
         if agent.robot_type == "green":
-            return agent.pos[0] == self.ZONE_GREEN[-1]
+            return agent.pos[0] == self.ZONE_GREEN[1]+1
         elif agent.robot_type == "yellow":
-            return agent.pos[0] == self.ZONE_YELLOW[-1]
+            return agent.pos[0] == self.ZONE_YELLOW[1]+1
         elif agent.robot_type == "red":
-            return agent.pos[0] == self.ZONE_RED[-1]
+            return agent.pos[0] == self.ZONE_RED[1]+1
         
     def step(self):
         """Avance la simulation d'un pas."""
-        # Créer une copie de la liste des agents pour éviter de modifier la structure pendant l'itération
-        agents_copy = list(self.agents)
+        # # Créer une copie de la liste des agents pour éviter de modifier la structure pendant l'itération
+        # agents_copy = list(self.agents)
         
         # Ne faire avancer que les robots, pas les objets Radioactivity
-        for agent in agents_copy:
+        for agent in list(self.agents):
             if isinstance(agent, (GreenRobot, YellowRobot, RedRobot)):
+                print(type(agent))
                 agent.step_agent()
