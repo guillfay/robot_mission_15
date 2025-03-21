@@ -7,6 +7,7 @@ from mesa.space import MultiGrid
 from agents import GreenRobot, YellowRobot, RedRobot
 from objects import Waste, Radioactivity, WasteDisposalZone
 import random
+from mesa.datacollection import DataCollector
 
 
 class RobotMission(Model):
@@ -27,11 +28,41 @@ class RobotMission(Model):
         self.n_red=n_red
         self.n_wastes=n_wastes
         self.strategy=strategy
+        self.green_wastes_remaining=0
+        self.yellow_wastes_remaining=0
+        self.red_wastes_remaining=0
         
         self.ZONE_WIDTH = self.grid.width // 3  
         self.ZONE_GREEN = (0, self.ZONE_WIDTH - 1)  
         self.ZONE_YELLOW = (self.ZONE_WIDTH, 2 * self.ZONE_WIDTH - 1)  
         self.ZONE_RED = (2 * self.ZONE_WIDTH, self.grid.width - 1)  
+
+        self.datacollector = DataCollector(
+            agent_reporters={
+                "Type": lambda a: type(a).__name__,
+                "Color": "robot_type",
+                "Pos": "pos",
+                # "PickedWastes": (
+                #     lambda a: (
+                #         objects_to_strings(a.percept_temp["wastes"])
+                #         if hasattr(a, "percept_temp")
+                #         else []
+                #     )
+                # ),
+            },
+            model_reporters={
+                # "strategy": "strategy",
+                # "picked_wastes": (lambda m: objects_to_strings(m.picked_wastes_list)),
+                # "waste_remaining": "waste_remaining",
+                "red_wastes_remaining": "red_wastes_remaining",
+                "yellow_wastes_remaining": "yellow_wastes_remaining",
+                "green_wastes_remaining": "green_wastes_remaining"
+                # "accessible_remaining_wastes": "accessible_remaining_wastes",
+                # "is_finished": "is_finished",
+            },
+        )
+
+        self.datacollector.collect(self)
 
         # Création des zones de radioactivité
         self.setup_radioactivity_zones()
@@ -111,14 +142,17 @@ class RobotMission(Model):
                 waste_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_GREEN[1]), random.randint(0, self.grid.height - 1))
                 waste = Waste(self, waste_type="green")
                 self.grid.place_agent(waste, waste_pos)
+                self.green_wastes_remaining+=1
             if waste_color==1:
                 waste_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_YELLOW[1]), random.randint(0, self.grid.height - 1))
                 waste = Waste(self, waste_type="yellow")
                 self.grid.place_agent(waste, waste_pos)
+                self.yellow_wastes_remaining+=1
             if waste_color==2:
                 waste_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_RED[1]), random.randint(0, self.grid.height - 1))
                 waste = Waste(self, waste_type="red")
                 self.grid.place_agent(waste, waste_pos)
+                self.red_wastes_remaining+=1
 
     def setup_disposal_zone(self):
         """Configure la zone de dépôt final."""
@@ -263,6 +297,7 @@ class RobotMission(Model):
         # agents_copy = list(self.agents)
         
         # Ne faire avancer que les robots, pas les objets Radioactivity
+        self.datacollector.collect(self)
         for agent in list(self.agents):
             if isinstance(agent, (GreenRobot, YellowRobot, RedRobot)):
                 print(type(agent))
