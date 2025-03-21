@@ -49,7 +49,48 @@ model_params = {
         "label": "Grid height",
         "min": 1,
         "max": 50,
-        "step": 1}
+        "step": 1},
+    
+    "n_green": {
+        "type": "SliderInt",
+        "value": 1,
+        "label": "Green agents",
+        "min": 1,
+        "max": 5,
+        "step": 1},
+
+    "n_yellow": {
+        "type": "SliderInt",
+        "value": 1,
+        "label": "Yellow agents",
+        "min": 1,
+        "max": 5,
+        "step": 1},
+    
+    "n_red": {
+        "type": "SliderInt",
+        "value": 1,
+        "label": "Red agents",
+        "min": 1,
+        "max": 5,
+        "step": 1},
+
+    "n_wastes": {
+        "type": "SliderInt",
+        "value": 1,
+        "label": "Wastes",
+        "min": 1,
+        "max": 5,
+        "step": 1},
+    
+    "strategy": {
+        "type": "SliderInt",
+        "value": 1,
+        "label": "Strategy",
+        "min": 1,
+        "max": 5,
+        "step": 1},
+    
 }
 
 # Création du modèle et de la visualisation

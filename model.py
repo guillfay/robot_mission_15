@@ -10,10 +10,23 @@ import random
 
 
 class RobotMission(Model):
-    def __init__(self, width=9, height=3):
+    def __init__(self,
+                 width=9,
+                 height=3,
+                 n_green=1,
+                 n_yellow=1,
+                 n_red=1,
+                 n_wastes=1,
+                 strategy=1
+                   ):
         super().__init__()
         self.grid = MultiGrid(width, height, torus=False)
         self.running = True
+        self.n_green=n_green
+        self.n_yellow=n_yellow
+        self.n_red=n_red
+        self.n_wastes=n_wastes
+        self.strategy=strategy
         
         self.ZONE_WIDTH = self.grid.width // 3  
         self.ZONE_GREEN = (0, self.ZONE_WIDTH - 1)  
