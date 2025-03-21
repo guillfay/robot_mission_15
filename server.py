@@ -48,6 +48,14 @@ model_params = {
         "label": "Grid height",
         "min": 10,
         "max": 50,
+        "step": 1},
+
+    "n_green": {
+        "type": "SliderInt",
+        "value": 1,
+        "label": "Green Agents",
+        "min": 1,
+        "max": 5,
         "step": 1}
 }
 

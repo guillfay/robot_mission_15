@@ -9,7 +9,7 @@ from objects import Waste, Radioactivity, WasteDisposalZone
 import random
 
 class RobotMission(Model):
-    def __init__(self, width=10, height=10):
+    def __init__(self, width=10, height=10, n_green=1):
         super().__init__()
         self.grid = MultiGrid(width, height, torus=False)
         self.running = True
@@ -23,7 +23,8 @@ class RobotMission(Model):
         self.setup_radioactivity_zones()
         
         # Création des robots
-        self.green_robot = GreenRobot(self)
+        for _ in range(n_green):
+            self.green_robot = GreenRobot(self)
         self.yellow_robot = YellowRobot(self)
         self.red_robot = RedRobot(self)
         
@@ -192,14 +193,14 @@ class RobotMission(Model):
         
         # Définir les zones autorisées en fonction du type de robot
         if agent.robot_type == "green":
-            # Robot vert: uniquement zone verte (colonnes 0-2)
+            # Robot vert
             return self.ZONE_GREEN[0] <= x <= self.ZONE_GREEN[1]
         elif agent.robot_type == "yellow":
-            # Robot jaune: zone jaune (colonnes 3-5) + dernière colonne verte (colonne 2)
-            return (self.ZONE_YELLOW[0] <= x <= self.ZONE_YELLOW[1]) or x == self.ZONE_YELLOW[0]-1
+            # Robot jaune
+            return (self.ZONE_GREEN[0] <= x <= self.ZONE_YELLOW[1])
         elif agent.robot_type == "red":
-            # Robot rouge: zone rouge (colonnes 6-8) + dernière colonne jaune (colonne 5)
-            return (self.ZONE_RED[0] <= x <= self.ZONE_RED[1]) or x == self.ZONE_RED[0]-1
+            # Robot rouge
+            return (self.ZONE_GREEN[0] <= x <= self.ZONE_RED[1])
         
         return False
         

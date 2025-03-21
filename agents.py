@@ -15,7 +15,9 @@ class RobotAgent(Agent):
         self.inventory = None  # Déchet transporté actuellement
         self.robot_type = robot_type  # "green", "yellow", "red"
         self.allowed_zones = allowed_zones  # Zones où le robot peut se déplacer
-    
+
+        # self.unique_id = f"{self.robot_type}_{self.model.next_id()}"
+        
     def step_agent(self):
         # Mise à jour des perceptions
         percepts = self.model.get_percepts(self)
@@ -52,7 +54,9 @@ class GreenRobot(RobotAgent):
     """Robot qui ne peut se déplacer que dans la zone verte."""
     def __init__(self, model):
         super().__init__(model, "green", [1])  # Zone 1 = verte
-    
+
+   
+
     def deliberate(self, knowledge):
         """Stratégie de décision du robot vert."""
         # Si le robot a un déchet et est sur la dernière colonne de sa zone
