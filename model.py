@@ -8,16 +8,18 @@ from agents import GreenRobot, YellowRobot, RedRobot
 from objects import Waste, Radioactivity, WasteDisposalZone
 import random
 
-from parametres import GRID_WIDTH, GRID_HEIGHT, ZONE_GREEN, ZONE_YELLOW, ZONE_RED
 
 class RobotMission(Model):
-    def __init__(self, width=GRID_WIDTH, height=GRID_HEIGHT):
+    def __init__(self, width=9, height=3):
         super().__init__()
-        self.width = width
-        self.height = height
         self.grid = MultiGrid(width, height, torus=False)
         self.running = True
         
+        self.ZONE_WIDTH = self.grid.width // 3  
+        self.ZONE_GREEN = (0, self.ZONE_WIDTH - 1)  
+        self.ZONE_YELLOW = (self.ZONE_WIDTH, 2 * self.ZONE_WIDTH - 1)  
+        self.ZONE_RED = (2 * self.ZONE_WIDTH, self.grid.width - 1)  
+
         # Création des zones de radioactivité
         self.setup_radioactivity_zones()
         
@@ -38,48 +40,48 @@ class RobotMission(Model):
     def setup_radioactivity_zones(self):
         """Configure les zones de radioactivité."""
         # Zone verte
-        for x in range(ZONE_GREEN[0], ZONE_GREEN[1] + 1):
-            for y in range(self.height):
+        for x in range(self.ZONE_GREEN[0], self.ZONE_GREEN[1] + 1):
+            for y in range(self.grid.height):
                 radioactivity = Radioactivity(self, zone=1)
                 self.grid.place_agent(radioactivity, (x, y))
         
         # Zone jaune
-        for x in range(ZONE_YELLOW[0], ZONE_YELLOW[1] + 1):
-            for y in range(self.height):
+        for x in range(self.ZONE_YELLOW[0], self.ZONE_YELLOW[1] + 1):
+            for y in range(self.grid.height):
                 radioactivity = Radioactivity(self, zone=2)
                 self.grid.place_agent(radioactivity, (x, y))
         
         # Zone rouge
-        for x in range(ZONE_RED[0], ZONE_RED[1] + 1):
-            for y in range(self.height):
+        for x in range(self.ZONE_RED[0], self.ZONE_RED[1] + 1):
+            for y in range(self.grid.height):
                 radioactivity = Radioactivity(self, zone=3)
                 self.grid.place_agent(radioactivity, (x, y))
 
     def setup_robots(self):
         """Place les robots dans leurs zones respectives."""
         # Robot vert dans la zone verte
-        green_pos = (random.randint(ZONE_GREEN[0], ZONE_GREEN[1]), random.randint(0, self.height - 1))
+        green_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_GREEN[1]), random.randint(0, self.grid.height - 1))
         self.grid.place_agent(self.green_robot, green_pos)
         
         # Robot jaune dans la zone jaune
-        yellow_pos = (random.randint(ZONE_YELLOW[0], ZONE_YELLOW[1]), random.randint(0, self.height - 1))
+        yellow_pos = (random.randint(self.ZONE_YELLOW[0], self.ZONE_YELLOW[1]), random.randint(0, self.grid.height - 1))
         self.grid.place_agent(self.yellow_robot, yellow_pos)
         
         # Robot rouge dans la zone rouge
-        red_pos = (random.randint(ZONE_RED[0], ZONE_RED[1]), random.randint(0, self.height - 1))
+        red_pos = (random.randint(self.ZONE_RED[0], self.ZONE_RED[1]), random.randint(0, self.grid.height - 1))
         self.grid.place_agent(self.red_robot, red_pos)
 
     def setup_initial_waste(self):
         """Place un déchet initial dans la zone verte."""
-        waste_pos = (random.randint(ZONE_GREEN[0], ZONE_GREEN[1]), random.randint(0, self.height - 1))
+        waste_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_GREEN[1]), random.randint(0, self.grid.height - 1))
         waste = Waste(self, waste_type="green")
         self.grid.place_agent(waste, waste_pos)
 
     def setup_disposal_zone(self):
         """Configure la zone de dépôt final."""
-        for y in range(self.height):
+        for y in range(self.grid.height):
             disposal = WasteDisposalZone(self)
-            self.grid.place_agent(disposal, (self.width - 1, y))
+            self.grid.place_agent(disposal, (self.grid.width - 1, y))
 
     def get_percepts(self, agent):
         """Retourne les informations sur l'environnement autour de l'agent."""
@@ -116,7 +118,12 @@ class RobotMission(Model):
         elif action == "drop_waste":
             # L'agent dépose le déchet s'il en a un
             if agent.inventory:
-                waste_type = "yellow" if agent.robot_type == "green" else "red" if agent.robot_type == "yellow" else "disposed"
+                if agent.robot_type == "green":
+                    waste_type = "yellow"
+                elif agent.robot_type == "yellow":
+                    waste_type = "red"
+                else:
+                    waste_type = "disposed"
                 
                 # Si le déchet est "disposed", on le supprime simplement
                 if waste_type != "disposed":
@@ -128,14 +135,9 @@ class RobotMission(Model):
                 
                 agent.inventory = None
             
-        elif action == "go_to_pickup":
-            # L'agent se déplace vers la colonne de collecte
-            target_column = 2 if agent.robot_type == "yellow" else 5 if agent.robot_type == "red" else 0
-            self.move_towards_column(agent, target_column)
-            
         elif action == "go_to_drop":
             # L'agent se déplace vers la colonne de dépôt
-            target_column = 2 if agent.robot_type == "green" else 5 if agent.robot_type == "yellow" else 8
+            target_column = self.ZONE_WIDTH - 1 if agent.robot_type == "green" else 2 * self.ZONE_WIDTH - 1 if agent.robot_type == "yellow" else self.grid.width - 1
             self.move_towards_column(agent, target_column)
         
         # Retourner les nouvelles perceptions
@@ -192,15 +194,24 @@ class RobotMission(Model):
         # Définir les zones autorisées en fonction du type de robot
         if agent.robot_type == "green":
             # Robot vert: uniquement zone verte (colonnes 0-2)
-            return 0 <= x <= 2
+            return self.ZONE_GREEN[0] <= x <= self.ZONE_GREEN[-1]
         elif agent.robot_type == "yellow":
             # Robot jaune: zone jaune (colonnes 3-5) + dernière colonne verte (colonne 2)
-            return (3 <= x <= 5) or x == 2
+            return self.ZONE_YELLOW[0] <= x <= self.ZONE_YELLOW[-1] or x == self.ZONE_GREEN[-1]
         elif agent.robot_type == "red":
             # Robot rouge: zone rouge (colonnes 6-8) + dernière colonne jaune (colonne 5)
-            return (6 <= x <= 8) or x == 5
+            return self.ZONE_RED[0] <= x <= self.ZONE_RED[-1] or x == self.ZONE_YELLOW[-1]
         
         return False
+    
+    def checkdrop(self, agent):
+        """Vérifie si un robot est sur la dernière colonne de sa zone."""
+        if agent.robot_type == "green":
+            return agent.pos[0] == self.ZONE_GREEN[-1]
+        elif agent.robot_type == "yellow":
+            return agent.pos[0] == self.ZONE_YELLOW[-1]
+        elif agent.robot_type == "red":
+            return agent.pos[0] == self.ZONE_RED[-1]
         
     def step(self):
         """Avance la simulation d'un pas."""
