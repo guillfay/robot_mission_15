@@ -253,8 +253,7 @@ class RobotMission(Model):
         if agent.robot_type == "green":
             return agent.pos[0] == self.ZONE_GREEN[1]
         elif agent.robot_type == "yellow":
-            print(agent.pos[0] == self.ZONE_YELLOW[1])
-            return agent.pos[0] == self.ZONE_YELLOW[1] # 11
+            return agent.pos[0] == self.ZONE_YELLOW[1]
         elif agent.robot_type == "red":
             return agent.pos[0] == self.ZONE_RED[1]
         
