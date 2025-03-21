@@ -10,7 +10,8 @@ class RobotAgent(Agent):
     def __init__(self, model, robot_type, allowed_zones):
         super().__init__(model)
         self.knowledge = {}  # Base de connaissances
-        self.inventory = None  # Déchet transporté actuellement
+        self.inventory = []  # Déchet transporté actuellement
+        self.got_waste = False
         self.robot_type = robot_type  # "green", "yellow", "red"
         self.allowed_zones = allowed_zones  # Zones où le robot peut se déplacer
     
@@ -39,13 +40,13 @@ class GreenRobot(RobotAgent):
     def deliberate(self, knowledge):
         """Stratégie de décision du robot vert."""
         # Si le robot a un déchet et est sur la dernière colonne de sa zone
-        if self.inventory and self.model.checkdrop(self):
+        if len(self.inventory)==2 and self.model.checkdrop(self):
             return "drop_waste"
         # Si le robot n'a pas de déchet
-        elif not self.inventory:
+        elif len(self.inventory)!=2:
             return "search_waste"
         # Si le robot a un déchet mais n'est pas sur la colonne de dépôt
-        else:
+        elif len(self.inventory)==2:
             return "go_to_drop"
 
 class YellowRobot(RobotAgent):
@@ -56,13 +57,13 @@ class YellowRobot(RobotAgent):
     def deliberate(self, knowledge):
         """Stratégie de décision du robot jaune."""
         # Si le robot est dans la zone jaune avec un déchet et sur la dernière colonne
-        if self.inventory and self.pos[0] == self.model.checkdrop(self):
+        if len(self.inventory)==2 and self.pos[0] == self.model.checkdrop(self):
             return "drop_waste"
         # Si le robot n'a pas de déchet et se trouve sur la colonne de collecte (colonne 2)
-        elif not self.inventory:
+        elif len(self.inventory)!=2:
             return "search_waste"
         # Si le robot a un déchet, se diriger vers la colonne de dépôt
-        else:
+        elif len(self.inventory)==2:
             return "go_to_drop"
 
 class RedRobot(RobotAgent):
@@ -73,11 +74,11 @@ class RedRobot(RobotAgent):
     def deliberate(self, knowledge):
         """Stratégie de décision du robot rouge."""
         # Si le robot est dans la zone rouge avec un déchet et sur la dernière colonne
-        if self.inventory and self.pos[0] == self.model.checkdrop(self):
+        if len(self.inventory)==2 and self.pos[0] == self.model.checkdrop(self):
             return "drop_waste"
         # Si le robot n'a pas de déchet et se trouve sur la colonne de collecte (colonne 5)
-        elif not self.inventory:
+        elif len(self.inventory)!=2:
             return "search_waste"
         # Si le robot a un déchet, se diriger vers la colonne de dépôt
-        else:
+        elif len(self.inventory)==2:
             return "go_to_drop"

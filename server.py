@@ -9,18 +9,18 @@ from objects import Waste, Radioactivity, WasteDisposalZone
 
 def agent_portrayal(agent):
     if isinstance(agent, GreenRobot):
-        return {"color": "#00FF00", "size": 150, "text": "G", "zorder": 1}
+        return {"color": "#00cb4d", "size": 150, "text": "G", "zorder": 1}
     elif isinstance(agent, YellowRobot):
-        return {"color": "#FFFF00", "size": 150, "text": "Y", "zorder": 1}
+        return {"color": "#FCDC12", "size": 150, "text": "Y", "zorder": 1}
     elif isinstance(agent, RedRobot):
-        return {"color": "#FF0000", "size": 150, "text": "R", "zorder": 1}
+        return {"color": "#c80202", "size": 150, "text": "R", "zorder": 1}
     elif isinstance(agent, Waste):
         if agent.waste_type == "green":
-            return {"color": "#90EE90", "size": 150, "text": "W", "marker": "^"}
+            return {"color": "#4dcb7d", "size": 150, "text": "W", "marker": "^"}
         elif agent.waste_type == "yellow":
-            return {"color": "#FFFF99", "size": 150, "text": "W", "marker": "^"}
+            return {"color": "#FFE645", "size": 150, "text": "W", "marker": "^"}
         elif agent.waste_type == "red":
-            return {"color": "#FFA07A", "size": 150, "text": "W", "marker": "^"}
+            return {"color": "#c54d4d", "size": 150, "text": "W", "marker": "^"}
     elif isinstance(agent, Radioactivity):
         if agent.zone == 3:
             return {"color": "#FFEBEE", "size": 300, "text": "", "marker": "s", "zorder": 0}

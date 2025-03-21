@@ -142,25 +142,26 @@ class RobotMission(Model):
     def do(self, agent, action):
         """Exécute une action et retourne les nouvelles perceptions."""
         print(f"{agent.robot_type} robot at {agent.pos} doing: {action}")
-        
+        print("GOT wASTE?", agent.got_waste)
         if action == "search_waste":
             # Vérifier si l'agent est sur une cellule avec un déchet
             cell_contents = self.grid.get_cell_list_contents([agent.pos])
             for obj in cell_contents:
                 if isinstance(obj, Waste) and obj.waste_type == agent.robot_type:
                     # Collecter le déchet
-                    agent.inventory = obj
+                    agent.inventory.append(obj)
+                    agent.got_waste = True
                     self.grid.remove_agent(obj)
                     print(f"{agent.robot_type} robot collected a {obj.waste_type} waste")
                     break
             
             # Si aucun déchet n'a été collecté, déplacer l'agent aléatoirement dans sa zone
-            if not agent.inventory:
+            if not agent.got_waste:
                 self.move_agent_randomly(agent)
                 
         elif action == "drop_waste":
             # L'agent dépose le déchet s'il en a un
-            if agent.inventory:
+            if len(agent.inventory)==2:
                 if agent.robot_type == "green":
                     waste_type = "yellow"
                 elif agent.robot_type == "yellow":
@@ -176,13 +177,14 @@ class RobotMission(Model):
                 else:
                     print(f"{agent.robot_type} robot disposed of the waste at {agent.pos}")
                 
-                agent.inventory = None
+                agent.inventory = []
             
         elif action == "go_to_drop":
             # L'agent se déplace vers la colonne de dépôt
             target_column = self.ZONE_WIDTH - 1 if agent.robot_type == "green" else 2 * self.ZONE_WIDTH - 1 if agent.robot_type == "yellow" else self.grid.width - 1
             self.move_towards_column(agent, target_column)
         
+        agent.got_waste=False
         # Retourner les nouvelles perceptions
         return self.get_percepts(agent)
     
