@@ -7,8 +7,8 @@ import random
 
 class RobotAgent(Agent):
     """Classe de base pour tous les types de robots."""
-    def __init__(self, model, robot_type, allowed_zones):
-        super().__init__(model)
+    def __init__(self, model, robot_type, allowed_zones, unique_id):
+        super().__init__(unique_id,model)
         self.knowledge = {}  # Base de connaissances
         self.inventory = None  # Déchet transporté actuellement
         self.robot_type = robot_type  # "green", "yellow", "red"
