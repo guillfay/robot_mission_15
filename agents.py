@@ -32,21 +32,21 @@ class RobotAgent(Agent):
         """Détermine l'action à effectuer selon les perceptions. Cette méthode doit être surchargée."""
         pass
     
-    def is_allowed_position(self, position):
-        """Vérifie si la position est autorisée pour ce robot."""
-        x, y = position
+    # def is_allowed_position(self, position):
+    #     """Vérifie si la position est autorisée pour ce robot."""
+    #     x, y = position
         
-        # Zone verte
-        if ZONE_GREEN[0] <= x <= ZONE_GREEN[1]:
-            return 1 in self.allowed_zones
-        # Zone jaune
-        elif ZONE_YELLOW[0] <= x <= ZONE_YELLOW[1]:
-            return 2 in self.allowed_zones
-        # Zone rouge
-        elif ZONE_RED[0] <= x <= ZONE_RED[1]:
-            return 3 in self.allowed_zones
+    #     # Zone verte
+    #     if ZONE_GREEN[0] <= x <= ZONE_GREEN[1]:
+    #         return 1 in self.allowed_zones
+    #     # Zone jaune
+    #     elif ZONE_YELLOW[0] <= x <= ZONE_YELLOW[1]:
+    #         return 2 in self.allowed_zones
+    #     # Zone rouge
+    #     elif ZONE_RED[0] <= x <= ZONE_RED[1]:
+    #         return 3 in self.allowed_zones
         
-        return False
+    #     return False
 
 class GreenRobot(RobotAgent):
     """Robot qui ne peut se déplacer que dans la zone verte."""

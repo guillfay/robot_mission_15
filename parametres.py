@@ -3,8 +3,8 @@
 # Names of the members of the group : Erwan DAVID, Guillaume FAYNOT
 
 # Paramètres de la grille
-GRID_WIDTH = 10  # Largeur de la grille
-GRID_HEIGHT = 4  # Hauteur de la grille
+GRID_WIDTH = 25  # Largeur de la grille
+GRID_HEIGHT = 15  # Hauteur de la grille
 
 # Calcul des limites des zones (division par 3 de l'espace)
 ZONE_WIDTH = GRID_WIDTH // 3  # Largeur de chaque zone
