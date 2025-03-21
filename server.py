@@ -23,11 +23,11 @@ def agent_portrayal(agent):
             return {"color": "#c54d4d", "size": 150, "text": "W", "marker": "^"}
     elif isinstance(agent, Radioactivity):
         if agent.zone == 3:
-            return {"color": "#FFEBEE", "size": 300, "text": "", "marker": "s", "zorder": 0}
+            return {"color": "#FFEBEE", "size": 300, "text": "", "marker": "s", "zorder": 0} # rouge
         elif agent.zone == 2:
-            return {"color": "#FFFFF0", "size": 300, "text": "", "marker": "s", "zorder": 0}
+            return {"color": "#FFFFF0", "size": 300, "text": "", "marker": "s", "zorder": 0} # jaune
         elif agent.zone == 1:
-            return {"color": "#E8F8E8", "size": 300, "text": "", "marker": "s", "zorder": 0}
+            return {"color": "#E8F8E8", "size": 300, "text": "", "marker": "s", "zorder": 0} # vert
         
         
     elif isinstance(agent, WasteDisposalZone):
@@ -80,7 +80,7 @@ model_params = {
         "value": 1,
         "label": "Wastes",
         "min": 1,
-        "max": 5,
+        "max": 20,
         "step": 1},
     
     "strategy": {

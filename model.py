@@ -59,13 +59,13 @@ class RobotMission(Model):
     def setup_radioactivity_zones(self):
         """Configure les zones de radioactivité."""
         # Zone verte
-        for x in range(self.ZONE_GREEN[0], self.ZONE_GREEN[1] + 1):
+        for x in range(self.ZONE_GREEN[0], self.ZONE_GREEN[1]+1):
             for y in range(self.grid.height):
                 radioactivity = Radioactivity(self, zone=1)
                 self.grid.place_agent(radioactivity, (x, y))
         
         # Zone jaune
-        for x in range(self.ZONE_YELLOW[0], self.ZONE_YELLOW[1] + 1):
+        for x in range(self.ZONE_YELLOW[0], self.ZONE_YELLOW[1]+1):
             for y in range(self.grid.height):
                 radioactivity = Radioactivity(self, zone=2)
                 self.grid.place_agent(radioactivity, (x, y))
@@ -94,7 +94,7 @@ class RobotMission(Model):
         
         # Robot rouge dans la zone verte, jaune ou rouge
         for agent in self.red_agents:
-            red_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_RED[1]), random.randint(0, self.grid.height - 1))
+            red_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_RED[1]+1), random.randint(0, self.grid.height - 1))
             self.grid.place_agent(agent, red_pos)
 
     def setup_initial_waste(self):
@@ -142,7 +142,6 @@ class RobotMission(Model):
     def do(self, agent, action):
         """Exécute une action et retourne les nouvelles perceptions."""
         print(f"{agent.robot_type} robot at {agent.pos} doing: {action}")
-        print("GOT wASTE?", agent.got_waste)
         if action == "search_waste":
             # Vérifier si l'agent est sur une cellule avec un déchet
             cell_contents = self.grid.get_cell_list_contents([agent.pos])
@@ -239,10 +238,10 @@ class RobotMission(Model):
         # Définir les zones autorisées en fonction du type de robot
         if agent.robot_type == "green":
             # Robot vert: uniquement zone verte (colonnes 0-2)
-            return self.ZONE_GREEN[0] <= x <= self.ZONE_GREEN[1]
+            return self.ZONE_GREEN[0] <= x <= self.ZONE_GREEN[1]+1
         elif agent.robot_type == "yellow":
             # Robot jaune: zone jaune (colonnes 3-5) + dernière colonne verte (colonne 2)
-            return self.ZONE_GREEN[0] <= x <= self.ZONE_YELLOW[1]
+            return self.ZONE_GREEN[0] <= x <= self.ZONE_YELLOW[1]+1
         elif agent.robot_type == "red":
             # Robot rouge: zone rouge (colonnes 6-8) + dernière colonne jaune (colonne 5)
             return self.ZONE_GREEN[0] <= x <= self.ZONE_RED[1]+1
@@ -254,9 +253,10 @@ class RobotMission(Model):
         if agent.robot_type == "green":
             return agent.pos[0] == self.ZONE_GREEN[1]
         elif agent.robot_type == "yellow":
-            return agent.pos[0] == self.ZONE_YELLOW[1]
+            print(agent.pos[0] == self.ZONE_YELLOW[1])
+            return agent.pos[0] == self.ZONE_YELLOW[1] # 11
         elif agent.robot_type == "red":
-            return agent.pos[0] == self.ZONE_RED[1]+1
+            return agent.pos[0] == self.ZONE_RED[1]
         
     def step(self):
         """Avance la simulation d'un pas."""

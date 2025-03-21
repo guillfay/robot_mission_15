@@ -57,7 +57,7 @@ class YellowRobot(RobotAgent):
     def deliberate(self, knowledge):
         """Stratégie de décision du robot jaune."""
         # Si le robot est dans la zone jaune avec un déchet et sur la dernière colonne
-        if len(self.inventory)==2 and self.pos[0] == self.model.checkdrop(self):
+        if len(self.inventory)==2 and self.model.checkdrop(self):
             return "drop_waste"
         # Si le robot n'a pas de déchet et se trouve sur la colonne de collecte (colonne 2)
         elif len(self.inventory)!=2:
@@ -74,7 +74,7 @@ class RedRobot(RobotAgent):
     def deliberate(self, knowledge):
         """Stratégie de décision du robot rouge."""
         # Si le robot est dans la zone rouge avec un déchet et sur la dernière colonne
-        if len(self.inventory)==2 and self.pos[0] == self.model.checkdrop(self):
+        if len(self.inventory)==2 and self.model.checkdrop(self):
             return "drop_waste"
         # Si le robot n'a pas de déchet et se trouve sur la colonne de collecte (colonne 5)
         elif len(self.inventory)!=2:
