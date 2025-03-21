@@ -49,6 +49,11 @@ page = SolaraViz(
     name="Robot Mission",
 )
 
-# Afficher la visualisation
-if __name__ == "__main__":
-    page
+page
+
+# Ligne de commande pour run le serveur : 
+"""
+
+python3 -m solara run server.py
+
+"""
