@@ -48,7 +48,10 @@ class RobotMission(Model):
         self.setup_robots()
         
         # Ajout d'un déchet initial dans la zone verte
-        self.setup_initial_waste()
+        # self.setup_initial_waste()
+
+        # Ajout de plusieurs déchets
+        self.setup_wastes()
         
         # Création de la zone de dépôt final (dernière colonne)
         self.setup_disposal_zone()
@@ -99,6 +102,23 @@ class RobotMission(Model):
         waste_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_GREEN[1]), random.randint(0, self.grid.height - 1))
         waste = Waste(self, waste_type="green")
         self.grid.place_agent(waste, waste_pos)
+
+    def setup_wastes(self):
+        """Place aléatoirement plusieurs déchets de plusieurs types"""
+        for _ in range(self.n_wastes):
+            waste_color = random.randint(0,2)
+            if waste_color==0:
+                waste_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_GREEN[1]), random.randint(0, self.grid.height - 1))
+                waste = Waste(self, waste_type="green")
+                self.grid.place_agent(waste, waste_pos)
+            if waste_color==1:
+                waste_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_YELLOW[1]), random.randint(0, self.grid.height - 1))
+                waste = Waste(self, waste_type="yellow")
+                self.grid.place_agent(waste, waste_pos)
+            if waste_color==2:
+                waste_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_RED[1]), random.randint(0, self.grid.height - 1))
+                waste = Waste(self, waste_type="red")
+                self.grid.place_agent(waste, waste_pos)
 
     def setup_disposal_zone(self):
         """Configure la zone de dépôt final."""
@@ -180,7 +200,6 @@ class RobotMission(Model):
                 possible_moves.append(pos)
 
         if possible_moves:
-
             new_position = random.choice(possible_moves)
             self.grid.move_agent(agent, new_position)
             print(f"{agent.robot_type} robot moved to {new_position}")
@@ -218,10 +237,10 @@ class RobotMission(Model):
         # Définir les zones autorisées en fonction du type de robot
         if agent.robot_type == "green":
             # Robot vert: uniquement zone verte (colonnes 0-2)
-            return self.ZONE_GREEN[0] <= x <= self.ZONE_GREEN[1] +1
+            return self.ZONE_GREEN[0] <= x <= self.ZONE_GREEN[1]
         elif agent.robot_type == "yellow":
             # Robot jaune: zone jaune (colonnes 3-5) + dernière colonne verte (colonne 2)
-            return self.ZONE_GREEN[0] <= x <= self.ZONE_YELLOW[1]+1
+            return self.ZONE_GREEN[0] <= x <= self.ZONE_YELLOW[1]
         elif agent.robot_type == "red":
             # Robot rouge: zone rouge (colonnes 6-8) + dernière colonne jaune (colonne 5)
             return self.ZONE_GREEN[0] <= x <= self.ZONE_RED[1]+1
