@@ -218,10 +218,10 @@ class RobotMission(Model):
         # Définir les zones autorisées en fonction du type de robot
         if agent.robot_type == "green":
             # Robot vert: uniquement zone verte (colonnes 0-2)
-            return self.ZONE_GREEN[0] <= x <= self.ZONE_GREEN[1]
+            return self.ZONE_GREEN[0] <= x <= self.ZONE_GREEN[1] +1
         elif agent.robot_type == "yellow":
             # Robot jaune: zone jaune (colonnes 3-5) + dernière colonne verte (colonne 2)
-            return self.ZONE_GREEN[0] <= x <= self.ZONE_YELLOW[1]
+            return self.ZONE_GREEN[0] <= x <= self.ZONE_YELLOW[1]+1
         elif agent.robot_type == "red":
             # Robot rouge: zone rouge (colonnes 6-8) + dernière colonne jaune (colonne 5)
             return self.ZONE_GREEN[0] <= x <= self.ZONE_RED[1]+1
@@ -231,9 +231,9 @@ class RobotMission(Model):
     def checkdrop(self, agent):
         """Vérifie si un robot est sur la dernière colonne de sa zone."""
         if agent.robot_type == "green":
-            return agent.pos[0] == self.ZONE_GREEN[1]+1
+            return agent.pos[0] == self.ZONE_GREEN[1]
         elif agent.robot_type == "yellow":
-            return agent.pos[0] == self.ZONE_YELLOW[1]+1
+            return agent.pos[0] == self.ZONE_YELLOW[1]
         elif agent.robot_type == "red":
             return agent.pos[0] == self.ZONE_RED[1]+1
         

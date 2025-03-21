@@ -16,11 +16,11 @@ def agent_portrayal(agent):
         return {"color": "#FF0000", "size": 150, "text": "R", "zorder": 1}
     elif isinstance(agent, Waste):
         if agent.waste_type == "green":
-            return {"color": "#90EE90", "size": 150, "text": "W", "marker": "s"}
+            return {"color": "#90EE90", "size": 150, "text": "W", "marker": "^"}
         elif agent.waste_type == "yellow":
-            return {"color": "#FFFF99", "size": 150, "text": "W", "marker": "s"}
+            return {"color": "#FFFF99", "size": 150, "text": "W", "marker": "^"}
         elif agent.waste_type == "red":
-            return {"color": "#FFA07A", "size": 150, "text": "W", "marker": "s"}
+            return {"color": "#FFA07A", "size": 150, "text": "W", "marker": "^"}
     elif isinstance(agent, Radioactivity):
         if agent.zone == 3:
             return {"color": "#FFEBEE", "size": 300, "text": "", "marker": "s", "zorder": 0}
