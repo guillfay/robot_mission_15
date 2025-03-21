@@ -37,7 +37,8 @@ class RobotMission(Model):
         self.setup_radioactivity_zones()
         
         # Création des robots
-        self.green_robot = GreenRobot(self)
+        self.green_agents = GreenRobot.create_agents(model=self, n=n_green)
+        # self.green_robot = GreenRobot(self)
         self.yellow_robot = YellowRobot(self)
         self.red_robot = RedRobot(self)
         
@@ -73,15 +74,16 @@ class RobotMission(Model):
     def setup_robots(self):
         """Place les robots dans leurs zones respectives."""
         # Robot vert dans la zone verte
-        green_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_GREEN[1]), random.randint(0, self.grid.height - 1))
-        self.grid.place_agent(self.green_robot, green_pos)
+        for agent in self.green_agents:
+            green_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_GREEN[1]), random.randint(0, self.grid.height - 1))
+            self.grid.place_agent(agent, green_pos)
         
         # Robot jaune dans la zone jaune
-        yellow_pos = (random.randint(self.ZONE_YELLOW[0], self.ZONE_YELLOW[1]), random.randint(0, self.grid.height - 1))
+        yellow_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_YELLOW[1]), random.randint(0, self.grid.height - 1))
         self.grid.place_agent(self.yellow_robot, yellow_pos)
         
         # Robot rouge dans la zone rouge
-        red_pos = (random.randint(self.ZONE_RED[0], self.ZONE_RED[1]), random.randint(0, self.grid.height - 1))
+        red_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_RED[1]), random.randint(0, self.grid.height - 1))
         self.grid.place_agent(self.red_robot, red_pos)
 
     def setup_initial_waste(self):
