@@ -2,10 +2,12 @@
 # Date of creation 11/03/2025 
 # Names of the members of the group : Erwan DAVID, Guillaume FAYNOT
 
-from mesa.visualization import SolaraViz, make_space_component
+from mesa.visualization import SolaraViz, make_space_component, make_plot_component
 from model import RobotMission
 from agents import GreenRobot, YellowRobot, RedRobot
 from objects import Waste, Radioactivity, WasteDisposalZone
+
+
 
 def agent_portrayal(agent):
     if isinstance(agent, GreenRobot):
@@ -23,15 +25,15 @@ def agent_portrayal(agent):
             return {"color": "#c54d4d", "size": 150, "text": "W", "marker": "^"}
     elif isinstance(agent, Radioactivity):
         if agent.zone == 3:
-            return {"color": "#FFEBEE", "size": 300, "text": "", "marker": "s", "zorder": 0} # rouge
+            return {"color": "#FFEBEE", "size": 700, "text": "", "marker": "s", "zorder": 0} # rouge
         elif agent.zone == 2:
-            return {"color": "#FFFFF0", "size": 300, "text": "", "marker": "s", "zorder": 0} # jaune
+            return {"color": "#FFFFF0", "size": 700, "text": "", "marker": "s", "zorder": 0} # jaune
         elif agent.zone == 1:
-            return {"color": "#E8F8E8", "size": 300, "text": "", "marker": "s", "zorder": 0} # vert
+            return {"color": "#E8F8E8", "size": 700, "text": "", "marker": "s", "zorder": 0} # vert
         
         
     elif isinstance(agent, WasteDisposalZone):
-        return {"color": "#ffffff", "size": 300, "text": "DISPOSAL", "marker": "s", "zorder": 0}
+        return {"color": "#ffffff", "size": 700, "text": "DISPOSAL", "marker": "s", "zorder": 0}
 
 # Paramètres du modèle
 model_params = {
@@ -55,7 +57,7 @@ model_params = {
         "type": "SliderInt",
         "value": 1,
         "label": "Green agents",
-        "min": 1,
+        "min": 0,
         "max": 5,
         "step": 1},
 
@@ -63,7 +65,7 @@ model_params = {
         "type": "SliderInt",
         "value": 1,
         "label": "Yellow agents",
-        "min": 1,
+        "min": 0,
         "max": 5,
         "step": 1},
     
@@ -71,15 +73,15 @@ model_params = {
         "type": "SliderInt",
         "value": 1,
         "label": "Red agents",
-        "min": 1,
+        "min": 0,
         "max": 5,
         "step": 1},
 
     "n_wastes": {
         "type": "SliderInt",
-        "value": 1,
+        "value": 5,
         "label": "Wastes",
-        "min": 1,
+        "min": 0,
         "max": 20,
         "step": 1},
     
@@ -96,10 +98,12 @@ model_params = {
 # Création du modèle et de la visualisation
 robot_model = RobotMission()
 SpaceGraph = make_space_component(agent_portrayal)
+FusedWastes = make_plot_component("FusedWastes")
+CollectedWastes = make_plot_component("CollectedWastes")
 
 page = SolaraViz(
     robot_model,
-    components=[SpaceGraph],
+    components=[SpaceGraph, FusedWastes, CollectedWastes],
     model_params=model_params,
     name="Robot Mission",
 )
