@@ -28,9 +28,9 @@ class RobotMission(Model):
         self.n_red=n_red
         self.n_wastes=n_wastes
         self.strategy=strategy
-        self.green_wastes_remaining=0
-        self.yellow_wastes_remaining=0
-        self.red_wastes_remaining=0
+        self.green_wastes_remaining=n_green
+        self.yellow_wastes_remaining=n_yellow
+        self.red_wastes_remaining=n_red
         
         self.ZONE_WIDTH = self.grid.width // 3  
         self.ZONE_GREEN = (0, self.ZONE_WIDTH - 1)  
@@ -42,8 +42,11 @@ class RobotMission(Model):
 
         self.datacollector = DataCollector(
             model_reporters={
-            "FusedWastes": lambda m: m.fused_wastes_count,  # Report the number of fused wastes
-            "CollectedWastes": lambda m: m.total_collected_wastes # Report the cumulative number of wastes collected by each robot
+            "FusedWastes": lambda m: m.fused_wastes_count,
+            "CollectedWastes": lambda m: m.total_collected_wastes,
+            "Green Wastes Remaining" : lambda m: m.green_wastes_remaining,
+            "Yellow Wastes Remaining" : lambda m: m.yellow_wastes_remaining,
+            "Red Wastes Remaining" : lambda m: m.red_wastes_remaining,
 
             },
             # agent_reporters={
@@ -176,6 +179,10 @@ class RobotMission(Model):
 
                     #data collector
                     self.total_collected_wastes += 1
+                    if agent.robot_type == 'green':
+                        self.green_wastes_remaining-=1
+                    if agent.robot_type == 'yellow':
+                        self.yellow_wastes_remaining-=1
                     break
 
 
@@ -190,11 +197,13 @@ class RobotMission(Model):
                 print("fusion yellow")
                 print(agent.inventory)
                 print(agent.weight_inventory)
+                self.yellow_wastes_remaining+=1
             elif agent.robot_type == "yellow":
                 waste = Waste(self, waste_type="red")
                 agent.inventory=[waste]
                 agent.weight_inventory += 2
                 print("fusion red")
+                self.red_wastes_remaining+=1
             
             #data collector
             self.fused_wastes_count += 1
@@ -210,6 +219,8 @@ class RobotMission(Model):
             agent.inventory = []
             agent.weight_inventory = 0
             print(f"{agent.robot_type} robot dropped waste")
+            if agent.robot_type=='red':
+                self.red_wastes_remaining-=1
             
         elif action == "go_to_drop":
             # L'agent se déplace vers la colonne de dépôt
