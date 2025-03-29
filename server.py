@@ -100,10 +100,11 @@ robot_model = RobotMission()
 SpaceGraph = make_space_component(agent_portrayal)
 FusedWastes = make_plot_component("FusedWastes")
 CollectedWastes = make_plot_component("CollectedWastes")
+RedWastesDeposited = make_plot_component("RedWastesDeposited")
 
 page = SolaraViz(
     robot_model,
-    components=[SpaceGraph, FusedWastes, CollectedWastes],
+    components=[SpaceGraph, FusedWastes, CollectedWastes, RedWastesDeposited],
     model_params=model_params,
     name="Robot Mission",
 )

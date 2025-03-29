@@ -15,19 +15,21 @@ class RobotAgent(Agent):
         self.got_waste = False
         self.robot_type = robot_type  # "green", "yellow", "red"
         self.allowed_zones = allowed_zones  # Zones où le robot peut se déplacer
+        self.visited = set()  # Ensemble des cellules visitées
     
     def step_agent(self):
-        # Mise à jour des perceptions
-        percepts = self.model.get_percepts(self)
-        self.knowledge.update(percepts)
+        """Mise à jour des perceptions"""
 
         # Choix d'une action
         action = self.deliberate(self.knowledge)
 
         # Exécution de l'action et mise à jour des perceptions
-        percepts = self.model.do(self, action)
-        self.knowledge.update(percepts)
+        self.knowledge = self.model.do(self, action)
+
+        # Enregistre la position actuelle comme visitée
+        self.visited.add(self.pos)  
     
+
     def deliberate(self, knowledge):
         """Détermine l'action à effectuer selon les perceptions. Cette méthode doit être surchargée."""
         pass
@@ -42,7 +44,21 @@ class GreenRobot(RobotAgent):
         """Stratégie de décision du robot rouge."""
         # Si le robot n'a pas de déchet et se trouve sur la colonne de collecte (colonne 5)
         if self.weight_inventory!=2:
+
+            # Si Waste à proximité, il y va
+            is_waste, pos = self.model.checkwaste(self)
+            if is_waste:
+                return self.move_towards(pos)
+
+            # Rechercher des zones non visitées
+            else: 
+                unexplored = [pos for pos in knowledge.keys() if pos not in self.visited]
+                if unexplored:
+                    return self.move_towards(unexplored[0])  # Aller vers une zone inexplorée
+
+            # Si tout a été exploré, marcher aléatoirement
             return "search_waste"
+        
         # Si le robot a un déchet, se diriger vers la colonne de dépôt
         elif self.weight_inventory==2:
             print("full")
@@ -50,17 +66,40 @@ class GreenRobot(RobotAgent):
                 return "drop_waste"
             else:
                 return "go_to_drop"
+    
+    def move_towards(self, target_pos):
+        """Renvoie une action pour aller vers target_pos."""
+        x, y = self.pos
+        target_x, target_y = target_pos
+
+        if x < target_x:
+            return "move_right"
+        elif x > target_x:
+            return "move_left"
+        elif y < target_y:
+            return "move_up"
+        elif y > target_y:
+            return "move_down"
+        return "search_waste"  # Si déjà sur place, continuer à chercher
+    
 
 class YellowRobot(RobotAgent):
     """Robot qui peut se déplacer dans les zones jaune et la dernière colonne de la zone verte."""
     def __init__(self, model):
-        super().__init__(model, "yellow", [2])  # Zone 2 = jaune
+        super().__init__(model, "yellow", [1, 2])  # Zone 2 = jaune
     
     def deliberate(self, knowledge):
         """Stratégie de décision du robot rouge."""
         # Si le robot n'a pas de déchet et se trouve sur la colonne de collecte (colonne 5)
         if self.weight_inventory!=2:
+            # Rechercher des zones non visitées
+            unexplored = [pos for pos in knowledge.keys() if pos not in self.visited]
+            if unexplored:
+                return self.move_towards(unexplored[0])  # Aller vers une zone inexplorée
+
+            # Si tout a été exploré, marcher aléatoirement
             return "search_waste"
+        
         # Si le robot a un déchet, se diriger vers la colonne de dépôt
         elif self.weight_inventory==2:
             print("full")
@@ -68,17 +107,40 @@ class YellowRobot(RobotAgent):
                 return "drop_waste"
             else:
                 return "go_to_drop"
+    
+    def move_towards(self, target_pos):
+        """Renvoie une action pour aller vers target_pos."""
+        x, y = self.pos
+        target_x, target_y = target_pos
+
+        if x < target_x:
+            return "move_right"
+        elif x > target_x:
+            return "move_left"
+        elif y < target_y:
+            return "move_up"
+        elif y > target_y:
+            return "move_down"
+        return "search_waste"  # Si déjà sur place, continuer à chercher
+
 
 class RedRobot(RobotAgent):
     """Robot qui peut se déplacer dans la zone rouge et la dernière colonne de la zone jaune."""
     def __init__(self, model):
-        super().__init__(model, "red", [3])  # Zone 3 = rouge
+        super().__init__(model, "red", [1, 2, 3])  # Zone 3 = rouge
     
     def deliberate(self, knowledge):
         """Stratégie de décision du robot rouge."""
         # Si le robot n'a pas de déchet et se trouve sur la colonne de collecte (colonne 5)
         if self.weight_inventory!=2:
+            # Rechercher des zones non visitées
+            unexplored = [pos for pos in knowledge.keys() if pos not in self.visited]
+            if unexplored:
+                return self.move_towards(unexplored[0])  # Aller vers une zone inexplorée
+
+            # Si tout a été exploré, marcher aléatoirement
             return "search_waste"
+        
         # Si le robot a un déchet, se diriger vers la colonne de dépôt
         elif self.weight_inventory==2:
             print("full")
@@ -86,3 +148,18 @@ class RedRobot(RobotAgent):
                 return "drop_waste"
             else:
                 return "go_to_drop"
+    
+    def move_towards(self, target_pos):
+        """Renvoie une action pour aller vers target_pos."""
+        x, y = self.pos
+        target_x, target_y = target_pos
+
+        if x < target_x:
+            return "move_right"
+        elif x > target_x:
+            return "move_left"
+        elif y < target_y:
+            return "move_up"
+        elif y > target_y:
+            return "move_down"
+        return "search_waste"  # Si déjà sur place, continuer à chercher
