@@ -33,6 +33,21 @@ class RobotAgent(Agent):
     def deliberate(self, knowledge):
         """Détermine l'action à effectuer selon les perceptions. Cette méthode doit être surchargée."""
         pass
+
+    def move_towards(self, target_pos):
+        """Renvoie une action pour aller vers target_pos."""
+        x, y = self.pos
+        target_x, target_y = target_pos
+
+        if x < target_x:
+            return "move_right"
+        elif x > target_x:
+            return "move_left"
+        elif y < target_y:
+            return "move_up"
+        elif y > target_y:
+            return "move_down"
+        return "search_waste"  # Si déjà sur place, continuer à chercher
     
 
 class GreenRobot(RobotAgent):
@@ -67,20 +82,7 @@ class GreenRobot(RobotAgent):
             else:
                 return "go_to_drop"
     
-    def move_towards(self, target_pos):
-        """Renvoie une action pour aller vers target_pos."""
-        x, y = self.pos
-        target_x, target_y = target_pos
-
-        if x < target_x:
-            return "move_right"
-        elif x > target_x:
-            return "move_left"
-        elif y < target_y:
-            return "move_up"
-        elif y > target_y:
-            return "move_down"
-        return "search_waste"  # Si déjà sur place, continuer à chercher
+    
     
 
 class YellowRobot(RobotAgent):
@@ -108,20 +110,7 @@ class YellowRobot(RobotAgent):
             else:
                 return "go_to_drop"
     
-    def move_towards(self, target_pos):
-        """Renvoie une action pour aller vers target_pos."""
-        x, y = self.pos
-        target_x, target_y = target_pos
-
-        if x < target_x:
-            return "move_right"
-        elif x > target_x:
-            return "move_left"
-        elif y < target_y:
-            return "move_up"
-        elif y > target_y:
-            return "move_down"
-        return "search_waste"  # Si déjà sur place, continuer à chercher
+    
 
 
 class RedRobot(RobotAgent):
@@ -149,17 +138,4 @@ class RedRobot(RobotAgent):
             else:
                 return "go_to_drop"
     
-    def move_towards(self, target_pos):
-        """Renvoie une action pour aller vers target_pos."""
-        x, y = self.pos
-        target_x, target_y = target_pos
-
-        if x < target_x:
-            return "move_right"
-        elif x > target_x:
-            return "move_left"
-        elif y < target_y:
-            return "move_up"
-        elif y > target_y:
-            return "move_down"
-        return "search_waste"  # Si déjà sur place, continuer à chercher
+    

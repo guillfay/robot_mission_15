@@ -45,7 +45,10 @@ class RobotMission(Model):
             model_reporters={
             "FusedWastes": lambda m: m.fused_wastes_count,  # Report the number of fused wastes
             "CollectedWastes": lambda m: m.total_collected_wastes, # Report the cumulative number of wastes collected by each robot
-            "RedWastesDeposited": lambda m: m.red_wastes_returned  # Report the number of red wastes deposited
+            "RedWastesDeposited": lambda m: m.red_wastes_returned,
+            "GreenWastesRemaining": lambda m: m.green_wastes_remaining,
+            "YellowWastesRemaining": lambda m: m.yellow_wastes_remaining,
+            "RedWastesRemaining": lambda m: m.red_wastes_remaining  # Report the number of red wastes deposited
             },
             # agent_reporters={
             # "CollectedWastes": lambda a: a.total_collected_wastes if isinstance(a, (GreenRobot, YellowRobot, RedRobot)) else 0,  # Report the cumulative number of wastes collected by each robot
@@ -191,6 +194,13 @@ class RobotMission(Model):
 
                     #data collector
                     self.total_collected_wastes += 1
+                    if agent.robot_type=='green':
+                        self.green_wastes_remaining-=1
+                    if agent.robot_type=='yellow':
+                        self.yellow_wastes_remaining-=1
+                    if agent.robot_type=='red':
+                        self.red_wastes_remaining-=1
+
                     break
 
 
@@ -202,11 +212,13 @@ class RobotMission(Model):
                 waste = Waste(self, waste_type="yellow")
                 agent.inventory=[waste]
                 agent.weight_inventory += 2
+                self.yellow_wastes_remaining+=1
                 print("fusion yellow")
             elif agent.robot_type == "yellow":
                 waste = Waste(self, waste_type="red")
                 agent.inventory=[waste]
                 agent.weight_inventory += 2
+                self.red_wastes_remaining+=1
                 print("fusion red")
             
             #data collector
