@@ -257,6 +257,7 @@ class RobotMission(Model):
         
         agent.got_waste=False
         # Retourner les nouvelles perceptions
+        print("percept", self.get_percepts(agent))
         return self.get_percepts(agent)
     
 

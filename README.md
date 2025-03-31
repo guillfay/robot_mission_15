@@ -42,9 +42,43 @@ As it was explained previously, there are 3 types of robots :
 
 ### 3. Model
 
+The model is mainly repsonsible for the environment behavior, initialization of the agents and  running of the simulation.
+
+The model is described by :
+- `width`, `height` :  width and height of the grid
+- `n_green`, `n_yellow`, `n_red` : number of robots of each type
+- `n_wastes` : number of wastes
+
+A grid is created with the proper dimensions and divided in 3 radioactive zones. All the robots and wastes are setup accordingly. We use a `DataCollector` to collect the data that is being used in further analysis of the simulation.
+
+At each step, the robot agents perform differents tasks : 
+- get the neighbor cells contents
+- decide to move on a neighbor cell or collect a waste if possible
+- merge wastes if 2 wastes are picked up, then move towards the deposit zone until it's reached.
+
+Agents aren't allowed to communicate yet and only percieve their surrounding environment. The strategy here is to execute random moves, avoiding a cell that was just previously occupied by another robot or previously occupied by the robot itself.
+
+
+
 ### 4. Environment Objects
 
+The environment objects are represented as agents to meet the Mesa library constraints. These agents do not have a proper behavior whatsoever, but it allows the environment to identify particular characteristics.
+
+- **Waste** : this agent represents a waste to collect. Its main attribute is its type (green, yellow or red)
+
+- **Radioactivity** : this agent represents the radioactivity of a zone. Its attributes are its zone ID (1 -> green, 2 -> yellow, etc) and its radioactivity level (green -> [0, 0.33], yellow -> [0.33, 0.66], red -> [0.66, 1]).
+
+- **WasteDisposalZone** : this agent represents the waste disposal zone at the end of each zone
+
+
 ### 5. Server
+
+By running server.py, a visulization window opens, allowing to see the simulation on a grid and a few plots : 
+
+- RemainingWastes : counts the remaining wastes for each type.
+- FusedWastes : counts all the wastes that have been merged, independently on the type.
+- CollectedWastes : counts all the wastes that have been collected, independently on the type.
+- RedWastesDeposit : counts all the red wastes that have been deposited.
 
 ### 6. Strategies
 
