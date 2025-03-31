@@ -114,6 +114,6 @@ page
 # Ligne de commande pour run le serveur : 
 """
 
-python3 -m solara run server.py
+python -m solara run server.py
 
 """
