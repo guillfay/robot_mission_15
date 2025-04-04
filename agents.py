@@ -139,7 +139,7 @@ class RedRobot(RobotAgent):
             else: 
                 unexplored = [pos for pos in knowledge.keys() if pos not in self.visited]
                 if unexplored:
-                    return self.move_towards(unexplored[0])  # Aller vers une zone inexplorée
+                    return self.move_towards(random.choice(unexplored))  # Aller vers une zone inexplorée aléatoire
 
             # Si tout a été exploré, marcher aléatoirement
             return "search_waste"
