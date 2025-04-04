@@ -179,6 +179,37 @@ class RobotMission(Model):
         """Exécute une action et retourne les nouvelles perceptions."""
         print(f"{agent.robot_type} robot at {agent.pos} doing: {action}")
         
+        # Différentes actions possibles fonction de la stratégie    
+        if action == "search_waste":
+            self.searching_waste(agent)
+        
+        elif action == "move_left":
+            self.move_to_target(agent, (agent.pos[0] - 1, agent.pos[1]))
+        
+        elif action == "move_right":
+            self.move_to_target(agent, (agent.pos[0] + 1, agent.pos[1]))
+
+        elif action == "move_up":
+            self.move_to_target(agent, (agent.pos[0], agent.pos[1] + 1))
+        
+        elif action == "move_down":
+            self.move_to_target(agent, (agent.pos[0], agent.pos[1] - 1))
+                
+        elif action == "drop_waste":
+            x, y = agent.pos
+            self.grid.place_agent(agent.inventory[0], (x, y)) if agent.robot_type != "red" else None
+            agent.inventory = []
+            agent.weight_inventory = 0
+            print(f"{agent.robot_type} robot dropped waste")
+            #data collector red si depot final
+            self.red_wastes_returned += 1 if agent.robot_type == "red" else 0
+            
+        elif action == "go_to_drop":
+            # L'agent se déplace vers la colonne de dépôt
+            target_column = self.ZONE_WIDTH - 1 if agent.robot_type == "green" else 2 * self.ZONE_WIDTH - 1 if agent.robot_type == "yellow" else self.grid.width - 1
+            self.move_towards_column(agent, target_column)
+        
+        
         # Collecte de déchet si agent sur case avec déchet et place dans l'inventaire
         if agent.weight_inventory < 2:
             # Vérifier si l'agent est sur une cellule avec un déchet
@@ -225,36 +256,6 @@ class RobotMission(Model):
             self.fused_wastes_count += 1
 
 
-        # Différentes actions possibles fonction de la stratégie    
-        if action == "search_waste":
-            self.searching_waste(agent)
-        
-        elif action == "move_left":
-            self.move_to_target(agent, (agent.pos[0] - 1, agent.pos[1]))
-        
-        elif action == "move_right":
-            self.move_to_target(agent, (agent.pos[0] + 1, agent.pos[1]))
-
-        elif action == "move_up":
-            self.move_to_target(agent, (agent.pos[0], agent.pos[1] + 1))
-        
-        elif action == "move_down":
-            self.move_to_target(agent, (agent.pos[0], agent.pos[1] - 1))
-                
-        elif action == "drop_waste":
-            x, y = agent.pos
-            self.grid.place_agent(agent.inventory[0], (x, y)) if agent.robot_type != "red" else None
-            agent.inventory = []
-            agent.weight_inventory = 0
-            print(f"{agent.robot_type} robot dropped waste")
-            #data collector red si depot final
-            self.red_wastes_returned += 1 if agent.robot_type == "red" else 0
-            
-        elif action == "go_to_drop":
-            # L'agent se déplace vers la colonne de dépôt
-            target_column = self.ZONE_WIDTH - 1 if agent.robot_type == "green" else 2 * self.ZONE_WIDTH - 1 if agent.robot_type == "yellow" else self.grid.width - 1
-            self.move_towards_column(agent, target_column)
-        
         agent.got_waste=False
         # Retourner les nouvelles perceptions
         print("percept", self.get_percepts(agent))
