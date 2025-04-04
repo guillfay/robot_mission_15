@@ -39,7 +39,7 @@ def agent_portrayal(agent):
 model_params = {
     "width":{
         "type": "SliderInt",
-        "value": 9,
+        "value": 13,
         "label": "Grid width",
         "min": 5,
         "max": 50,
@@ -47,7 +47,7 @@ model_params = {
 
     "height": {
         "type": "SliderInt",
-        "value": 3,
+        "value": 11,
         "label": "Grid height",
         "min": 3,
         "max": 50,
@@ -55,34 +55,34 @@ model_params = {
     
     "n_green": {
         "type": "SliderInt",
-        "value": 1,
+        "value": 2,
         "label": "Green agents",
-        "min": 0,
-        "max": 5,
+        "min": 2,
+        "max": 10,
         "step": 1},
 
     "n_yellow": {
         "type": "SliderInt",
-        "value": 1,
+        "value": 2,
         "label": "Yellow agents",
-        "min": 0,
-        "max": 5,
+        "min": 2,
+        "max": 10,
         "step": 1},
     
     "n_red": {
         "type": "SliderInt",
-        "value": 1,
+        "value": 2,
         "label": "Red agents",
-        "min": 0,
-        "max": 5,
+        "min": 2,
+        "max": 10,
         "step": 1},
 
     "n_wastes": {
         "type": "SliderInt",
-        "value": 5,
+        "value": 10,
         "label": "Wastes",
         "min": 0,
-        "max": 20,
+        "max": 30,
         "step": 1},
     
     "strategy": {
@@ -90,7 +90,7 @@ model_params = {
         "value": 1,
         "label": "Strategy",
         "min": 1,
-        "max": 5,
+        "max": 2,
         "step": 1},
     
 }
