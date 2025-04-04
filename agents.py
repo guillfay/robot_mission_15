@@ -56,7 +56,7 @@ class GreenRobot(RobotAgent):
         super().__init__(model, "green", [1])  # Zone 1 = verte
     
     def deliberate(self, knowledge):
-        """Stratégie de décision du robot rouge."""
+        """Stratégie de décision du robot."""
         # Si le robot n'a pas de déchet et se trouve sur la colonne de collecte (colonne 5)
         if self.weight_inventory!=2:
 
@@ -91,13 +91,20 @@ class YellowRobot(RobotAgent):
         super().__init__(model, "yellow", [1, 2])  # Zone 2 = jaune
     
     def deliberate(self, knowledge):
-        """Stratégie de décision du robot rouge."""
+        """Stratégie de décision du robot."""
         # Si le robot n'a pas de déchet et se trouve sur la colonne de collecte (colonne 5)
         if self.weight_inventory!=2:
+
+            # Si Waste à proximité, il y va
+            is_waste, pos = self.model.checkwaste(self)
+            if is_waste:
+                return self.move_towards(pos)
+
             # Rechercher des zones non visitées
-            unexplored = [pos for pos in knowledge.keys() if pos not in self.visited]
-            if unexplored:
-                return self.move_towards(unexplored[0])  # Aller vers une zone inexplorée
+            else: 
+                unexplored = [pos for pos in knowledge.keys() if pos not in self.visited]
+                if unexplored:
+                    return self.move_towards(unexplored[0])  # Aller vers une zone inexplorée
 
             # Si tout a été exploré, marcher aléatoirement
             return "search_waste"
@@ -119,13 +126,20 @@ class RedRobot(RobotAgent):
         super().__init__(model, "red", [1, 2, 3])  # Zone 3 = rouge
     
     def deliberate(self, knowledge):
-        """Stratégie de décision du robot rouge."""
+        """Stratégie de décision du robot."""
         # Si le robot n'a pas de déchet et se trouve sur la colonne de collecte (colonne 5)
         if self.weight_inventory!=2:
+
+            # Si Waste à proximité, il y va
+            is_waste, pos = self.model.checkwaste(self)
+            if is_waste:
+                return self.move_towards(pos)
+
             # Rechercher des zones non visitées
-            unexplored = [pos for pos in knowledge.keys() if pos not in self.visited]
-            if unexplored:
-                return self.move_towards(unexplored[0])  # Aller vers une zone inexplorée
+            else: 
+                unexplored = [pos for pos in knowledge.keys() if pos not in self.visited]
+                if unexplored:
+                    return self.move_towards(unexplored[0])  # Aller vers une zone inexplorée
 
             # Si tout a été exploré, marcher aléatoirement
             return "search_waste"
