@@ -149,7 +149,7 @@ class RobotMission(Model):
                 self.grid.place_agent(waste, waste_pos)
                 self.yellow_wastes_remaining+=1
             if waste_color==2:
-                waste_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_RED[1]), random.randint(0, self.grid.height - 1))
+                waste_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_RED[1]-1), random.randint(0, self.grid.height - 1))
                 waste = Waste(self, waste_type="red")
                 self.grid.place_agent(waste, waste_pos)
                 self.red_wastes_remaining+=1
