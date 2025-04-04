@@ -31,6 +31,8 @@ class RobotMission(Model):
         self.green_wastes_remaining=0
         self.yellow_wastes_remaining=0
         self.red_wastes_remaining=0
+        self.latent_green=0
+        self.latent_yellow=0
         
         self.ZONE_WIDTH = self.grid.width // 3  
         self.ZONE_GREEN = (0, self.ZONE_WIDTH - 1)  
@@ -48,7 +50,9 @@ class RobotMission(Model):
             "RedWastesDeposited": lambda m: m.red_wastes_returned,
             "GreenWastesRemaining": lambda m: m.green_wastes_remaining,
             "YellowWastesRemaining": lambda m: m.yellow_wastes_remaining,
-            "RedWastesRemaining": lambda m: m.red_wastes_remaining  # Report the number of red wastes deposited
+            "RedWastesRemaining": lambda m: m.red_wastes_remaining,  # Report the number of red wastes deposited
+            "GreenLatentWastes" : lambda m: m.latent_green,
+            "YellowLatentWastes" : lambda m: m.latent_yellow
             },
             # agent_reporters={
             # "CollectedWastes": lambda a: a.total_collected_wastes if isinstance(a, (GreenRobot, YellowRobot, RedRobot)) else 0,  # Report the cumulative number of wastes collected by each robot
@@ -227,8 +231,10 @@ class RobotMission(Model):
                     self.total_collected_wastes += 1
                     if agent.robot_type=='green':
                         self.green_wastes_remaining-=1
+                        self.latent_green+=1
                     if agent.robot_type=='yellow':
                         self.yellow_wastes_remaining-=1
+                        self.latent_yellow+=1
                     if agent.robot_type=='red':
                         self.red_wastes_remaining-=1
 
@@ -244,12 +250,14 @@ class RobotMission(Model):
                 agent.inventory=[waste]
                 agent.weight_inventory += 2
                 self.yellow_wastes_remaining+=1
+                self.latent_green-=2
                 print("fusion yellow")
             elif agent.robot_type == "yellow":
                 waste = Waste(self, waste_type="red")
                 agent.inventory=[waste]
                 agent.weight_inventory += 2
                 self.red_wastes_remaining+=1
+                self.latent_yellow-=1
                 print("fusion red")
             
             #data collector

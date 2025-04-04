@@ -98,7 +98,7 @@ model_params = {
 # Création du modèle et de la visualisation
 robot_model = RobotMission()
 SpaceGraph = make_space_component(agent_portrayal)
-WastesRemaining = make_plot_component({"GreenWastesRemaining" : "g", "YellowWastesRemaining" : "yellow", "RedWastesRemaining" : 'r'})
+WastesRemaining = make_plot_component({"GreenWastesRemaining" : "g",  "GreenLatentWastes": "mediumseagreen", "YellowWastesRemaining" : "gold", "YellowLatentWastes" : "yellow", "RedWastesRemaining" : 'r'})
 FusedWastes = make_plot_component("FusedWastes")
 CollectedWastes = make_plot_component("CollectedWastes")
 RedWastesDeposited = make_plot_component("RedWastesDeposited")
