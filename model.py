@@ -12,12 +12,12 @@ from mesa.datacollection import DataCollector
 
 class RobotMission(Model):
     def __init__(self,
-                 width=9,
-                 height=3,
-                 n_green=1,
-                 n_yellow=1,
-                 n_red=1,
-                 n_wastes=1,
+                 width=13,
+                 height=11,
+                 n_green=2,
+                 n_yellow=2,
+                 n_red=2,
+                 n_wastes=10,
                  strategy=1
                    ):
         super().__init__()
