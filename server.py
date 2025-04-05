@@ -57,7 +57,7 @@ model_params = {
         "type": "SliderInt",
         "value": 2,
         "label": "Green agents",
-        "min": 2,
+        "min": 0,
         "max": 10,
         "step": 1},
 
@@ -65,7 +65,7 @@ model_params = {
         "type": "SliderInt",
         "value": 2,
         "label": "Yellow agents",
-        "min": 2,
+        "min": 0,
         "max": 10,
         "step": 1},
     
@@ -73,7 +73,7 @@ model_params = {
         "type": "SliderInt",
         "value": 2,
         "label": "Red agents",
-        "min": 2,
+        "min": 0,
         "max": 10,
         "step": 1},
 
@@ -87,10 +87,10 @@ model_params = {
     
     "strategy": {
         "type": "SliderInt",
-        "value": 1,
+        "value": 3,
         "label": "Strategy",
         "min": 1,
-        "max": 2,
+        "max": 3,
         "step": 1},
     
 }

@@ -18,11 +18,13 @@ class RobotMission(Model):
                  n_yellow=2,
                  n_red=2,
                  n_wastes=10,
-                 strategy=1
+                 strategy=3
                    ):
         super().__init__()
         self.grid = MultiGrid(width, height, torus=False)
         self.running = True
+        self.time_step = 0
+
         self.n_green=n_green
         self.n_yellow=n_yellow
         self.n_red=n_red
@@ -106,7 +108,8 @@ class RobotMission(Model):
     def setup_robots(self):
         """Place les robots dans leurs zones respectives."""
         # Robot vert dans la zone verte
-        for agent in self.green_agents:
+        for i, agent in enumerate(self.green_agents):
+            agent.ID = (i+1)*100/self.n_green
             green_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_GREEN[1]), random.randint(0, self.grid.height - 1))
             self.grid.place_agent(agent, green_pos)
             # Mise à jour initiale de son knowledge
@@ -115,7 +118,8 @@ class RobotMission(Model):
 
         
         # Robot jaune dans la zone verte ou jaune
-        for agent in self.yellow_agents:
+        for i, agent in enumerate(self.yellow_agents):
+            agent.ID = (i+1)*100/self.n_yellow
             yellow_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_YELLOW[1]), random.randint(0, self.grid.height - 1))
             self.grid.place_agent(agent, yellow_pos)
             # Mise à jour initiale de son knowledge
@@ -124,7 +128,8 @@ class RobotMission(Model):
 
         
         # Robot rouge dans la zone verte, jaune ou rouge
-        for agent in self.red_agents:
+        for i, agent in enumerate(self.red_agents):
+            agent.ID = (i+1)*100/self.n_red
             red_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_RED[1]), random.randint(0, self.grid.height - 1))
             self.grid.place_agent(agent, red_pos)
             # Mise à jour initiale de son knowledge
@@ -168,32 +173,36 @@ class RobotMission(Model):
         """Retourne les informations sur l'environnement autour de l'agent."""
         # Obtenir les cellules voisines et leur contenu
         neighbors = self.grid.get_neighborhood(agent.pos, moore=False, include_center=True) # retourne les 5 cases (ou moins si bord de map) sous forme d'une liste de tuples (x,y)
-        
+        neighbors = [pos for pos in neighbors if pos != agent.pos]  # Enlever la case correspondant à la position de l'agent
+
         percepts = {}
         
         for pos in neighbors:
             cell_content = self.grid.get_cell_list_contents([pos]) #retourne une liste d'objets présents dans la case
 
-            if cell_content and any(isinstance(obj, Radioactivity) and obj.zone in agent.allowed_zones for obj in cell_content):
+            if cell_content and any(isinstance(obj, Radioactivity) and obj.zone in agent.allowed_zones for obj in cell_content): #la où l'agent peut aller (sa zone)
                 percepts[pos] = cell_content
-     
-        return percepts #c'est donc un dico de 9 cases avec pour chaque case une liste d'objets présents dans la case
+
+        return percepts #c'est donc un dico de 4 cases avec pour chaque case une liste d'objets présents dans la case
 
     def do(self, agent, action):
         """Exécute une action et retourne les nouvelles perceptions."""
         print(f"{agent.robot_type} robot at {agent.pos} doing: {action}")
-        
+
         # Différentes actions possibles fonction de la stratégie    
         if action == "search_waste":
             self.searching_waste(agent)
         
         elif action == "move_left":
+            print(f"{agent.robot_type} robot moving left")
             self.move_to_target(agent, (agent.pos[0] - 1, agent.pos[1]))
         
         elif action == "move_right":
+            print(f"{agent.robot_type} robot moving right")
             self.move_to_target(agent, (agent.pos[0] + 1, agent.pos[1]))
 
         elif action == "move_up":
+            print(f"{agent.robot_type} robot moving up")
             self.move_to_target(agent, (agent.pos[0], agent.pos[1] + 1))
         
         elif action == "move_down":
@@ -201,21 +210,34 @@ class RobotMission(Model):
                 
         elif action == "drop_waste":
             x, y = agent.pos
-            self.grid.place_agent(agent.inventory[0], (x, y)) if agent.robot_type != "red" else None
+            waste = agent.inventory[0]
+            self.grid.place_agent(waste, (x, y)) if agent.robot_type != "red" else None
+
+            if waste.waste_type == "green":
+                self.green_wastes_remaining += 1
+                self.latent_green -= 1
+            elif waste.waste_type == "yellow":
+                self.yellow_wastes_remaining += 1
+                self.latent_yellow -= 1
+            elif waste.waste_type == "red":
+                self.red_wastes_remaining += 1
+                #pas de latent red
+                
             agent.inventory = []
             agent.weight_inventory = 0
+            agent.just_dropped = True #Flag pour empêcher de ramasser un déchet juste après avoir déposé
             print(f"{agent.robot_type} robot dropped waste")
             #data collector red si depot final
             self.red_wastes_returned += 1 if agent.robot_type == "red" else 0
             
-        elif action == "go_to_drop":
+        elif action == "deliberate_1_go_to_drop":
             # L'agent se déplace vers la colonne de dépôt
             target_column = self.ZONE_WIDTH - 1 if agent.robot_type == "green" else 2 * self.ZONE_WIDTH - 1 if agent.robot_type == "yellow" else self.grid.width - 1
             self.move_towards_column(agent, target_column)
         
         
         # Collecte de déchet si agent sur case avec déchet et place dans l'inventaire
-        if agent.weight_inventory < 2:
+        if agent.weight_inventory < 2 and not agent.just_dropped:
             # Vérifier si l'agent est sur une cellule avec un déchet
             cell_contents = self.grid.get_cell_list_contents([agent.pos])
             for obj in cell_contents:
@@ -251,13 +273,14 @@ class RobotMission(Model):
                 agent.weight_inventory += 2
                 self.yellow_wastes_remaining+=1
                 self.latent_green-=2
+                self.latent_yellow+=1
                 print("fusion yellow")
             elif agent.robot_type == "yellow":
                 waste = Waste(self, waste_type="red")
                 agent.inventory=[waste]
                 agent.weight_inventory += 2
                 self.red_wastes_remaining+=1
-                self.latent_yellow-=1
+                self.latent_yellow-=2
                 print("fusion red")
             
             #data collector
@@ -265,8 +288,9 @@ class RobotMission(Model):
 
 
         agent.got_waste=False
+        agent.just_dropped = False  # Reset pour le prochain tour
+
         # Retourner les nouvelles perceptions
-        print("percept", self.get_percepts(agent))
         return self.get_percepts(agent)
     
 
@@ -284,6 +308,7 @@ class RobotMission(Model):
         """Vérifie si il y a un déchet ramassable à proximité de l'agent."""
         # Obtenir toutes les cellules voisines
         neighbors = self.grid.get_neighborhood(agent.pos, moore=False, include_center=False)
+        neighbors = [pos for pos in neighbors if pos != agent.pos]  # Enlever la case correspondant à la position de l'agent
 
         for pos in neighbors:
             cell_content = self.grid.get_cell_list_contents([pos]) #retourne une liste d'objets présents dans la case
@@ -301,6 +326,7 @@ class RobotMission(Model):
         
         # Obtenir toutes les cellules voisines
         neighbors = self.grid.get_neighborhood(agent.pos, moore=False, include_center=False)
+        neighbors = [pos for pos in neighbors if pos != agent.pos]  # Enlever la case correspondant à la position de l'agent
 
         for pos in neighbors:
             if self.is_position_allowed(agent, pos):
@@ -310,7 +336,6 @@ class RobotMission(Model):
         if possible_moves:
             new_position = random.choice(possible_moves)
             self.grid.move_agent(agent, new_position)
-            print(f"No Watse found : {agent.robot_type} robot moved to {new_position}")
     
 
 
@@ -342,20 +367,30 @@ class RobotMission(Model):
             return self.ZONE_GREEN[0] <= x <= self.ZONE_RED[1]
 
     
-    def checkdrop(self, agent):
+    def deliberate_1_checkdrop(self, agent):
         """Vérifie si un robot est sur la dernière colonne de sa zone."""
         if agent.robot_type == "green":
             return agent.pos[0] == self.ZONE_GREEN[1]
         elif agent.robot_type == "yellow":
-            return agent.pos[0] == self.ZONE_YELLOW[1]
+            return agent.pos[0] == self.ZONE_YELLOW[1] 
+        elif agent.robot_type == "red":
+            return agent.pos[0] == self.ZONE_RED[1] 
+    
+
+    def deliberate_3_checkdrop(self, agent):
+        """Vérifie si un robot est sur la case du haut de la dernière colonne de sa zone."""
+        if agent.robot_type == "green":
+            return agent.pos[0] == self.ZONE_GREEN[1] and agent.pos[1] == self.grid.height - 1
+        elif agent.robot_type == "yellow":
+            return agent.pos[0] == self.ZONE_YELLOW[1] and agent.pos[1] == self.grid.height - 1
         elif agent.robot_type == "red":
             return agent.pos[0] == self.ZONE_RED[1]
         
+
     def step(self):
         """Avance la simulation d'un pas."""
-        # # Créer une copie de la liste des agents pour éviter de modifier la structure pendant l'itération
-        # agents_copy = list(self.agents)
-        
+        self.time_step += 1
+        #print("================================", self.strategy, "================================")
         # Ne faire avancer que les robots, pas les objets Radioactivity
         self.datacollector.collect(self)
         for agent in list(self.agents):
