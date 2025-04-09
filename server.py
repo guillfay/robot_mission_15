@@ -39,7 +39,7 @@ def agent_portrayal(agent):
 model_params = {
     "width":{
         "type": "SliderInt",
-        "value": 9,
+        "value": 13,
         "label": "Grid width",
         "min": 5,
         "max": 50,
@@ -47,7 +47,7 @@ model_params = {
 
     "height": {
         "type": "SliderInt",
-        "value": 3,
+        "value": 11,
         "label": "Grid height",
         "min": 3,
         "max": 50,
@@ -55,42 +55,42 @@ model_params = {
     
     "n_green": {
         "type": "SliderInt",
-        "value": 1,
+        "value": 2,
         "label": "Green agents",
         "min": 0,
-        "max": 5,
+        "max": 10,
         "step": 1},
 
     "n_yellow": {
         "type": "SliderInt",
-        "value": 1,
+        "value": 2,
         "label": "Yellow agents",
         "min": 0,
-        "max": 5,
+        "max": 10,
         "step": 1},
     
     "n_red": {
         "type": "SliderInt",
-        "value": 1,
+        "value": 2,
         "label": "Red agents",
         "min": 0,
-        "max": 5,
+        "max": 10,
         "step": 1},
 
     "n_wastes": {
         "type": "SliderInt",
-        "value": 5,
+        "value": 10,
         "label": "Wastes",
         "min": 0,
-        "max": 20,
+        "max": 30,
         "step": 1},
     
     "strategy": {
         "type": "SliderInt",
-        "value": 1,
+        "value": 3,
         "label": "Strategy",
         "min": 1,
-        "max": 5,
+        "max": 3,
         "step": 1},
     
 }
@@ -98,7 +98,7 @@ model_params = {
 # Création du modèle et de la visualisation
 robot_model = RobotMission()
 SpaceGraph = make_space_component(agent_portrayal)
-WastesRemaining = make_plot_component({"GreenWastesRemaining" : "g", "YellowWastesRemaining" : "yellow", "RedWastesRemaining" : 'r'})
+WastesRemaining = make_plot_component({"GreenWastesRemaining" : "g",  "GreenLatentWastes": "mediumseagreen", "YellowWastesRemaining" : "gold", "YellowLatentWastes" : "yellow", "RedWastesRemaining" : 'r'})
 FusedWastes = make_plot_component("FusedWastes")
 CollectedWastes = make_plot_component("CollectedWastes")
 RedWastesDeposited = make_plot_component("RedWastesDeposited")
