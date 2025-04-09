@@ -151,6 +151,7 @@ Here are a performance plot for each strategy, with the same parameters (2 agent
 ![Strategy 1 Performance](./strat1.png)
 
 **Strategy 2**
+
 ![Strategy 2 Performance](./strat2.png)
 
 **Strategy 3**
