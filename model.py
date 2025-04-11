@@ -256,10 +256,10 @@ class RobotMission(Model):
                     if agent.robot_type=='green':
                         self.green_wastes_remaining-=1
                         self.latent_green+=1
-                    if agent.robot_type=='yellow':
+                    elif agent.robot_type=='yellow':
                         self.yellow_wastes_remaining-=1
                         self.latent_yellow+=1
-                    if agent.robot_type=='red':
+                    elif agent.robot_type=='red':
                         self.red_wastes_remaining-=1
 
                     break
