@@ -220,15 +220,17 @@ class RobotMission(Model):
                 self.yellow_wastes_remaining += 1
                 self.latent_yellow -= 1
             elif waste.waste_type == "red":
-                self.red_wastes_remaining += 1
+                self.red_wastes_remaining += 1 if agent.robot_type == "yellow" else 0 #depot issu de fusion de 2 jaunes
                 #pas de latent red
-                
+
+            #data collector red si depot final
+            self.red_wastes_returned += 1 if agent.robot_type == "red" else 0
+
             agent.inventory = []
             agent.weight_inventory = 0
             agent.just_dropped = True #Flag pour empêcher de ramasser un déchet juste après avoir déposé
             print(f"{agent.robot_type} robot dropped waste")
-            #data collector red si depot final
-            self.red_wastes_returned += 1 if agent.robot_type == "red" else 0
+            
             
         elif action == "deliberate_1_go_to_drop":
             # L'agent se déplace vers la colonne de dépôt
@@ -271,7 +273,7 @@ class RobotMission(Model):
                 waste = Waste(self, waste_type="yellow")
                 agent.inventory=[waste]
                 agent.weight_inventory += 2
-                self.yellow_wastes_remaining+=1
+                #self.yellow_wastes_remaining+=1
                 self.latent_green-=2
                 self.latent_yellow+=1
                 print("fusion yellow")
@@ -279,7 +281,7 @@ class RobotMission(Model):
                 waste = Waste(self, waste_type="red")
                 agent.inventory=[waste]
                 agent.weight_inventory += 2
-                self.red_wastes_remaining+=1
+                #self.red_wastes_remaining+=1
                 self.latent_yellow-=2
                 print("fusion red")
             

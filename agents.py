@@ -348,3 +348,11 @@ class RedRobot(RobotAgent):
                     return self.move_towards([self.model.ZONE_RED[-1], self.model.grid.height - 1])
         
     
+
+"""A FAIRE
+- Separer par zone agents (agent connaisse taille grille). Chaque agent se répartir verticalement les zones.
+Il y aura donc autant de zone de dépot de déchet qu''il y a de zones (ou encore qu'il y a de robots)
+- Gérer les déchets latents.
+
+- Mettre des murs
+"""
