@@ -18,7 +18,7 @@ class RobotMission(Model):
                  n_yellow=2,
                  n_red=2,
                  n_wastes=10,
-                 strategy=3
+                 strategy=4
                    ):
         super().__init__()
         self.grid = MultiGrid(width, height, torus=False)
@@ -110,6 +110,12 @@ class RobotMission(Model):
         # Robot vert dans la zone verte
         for i, agent in enumerate(self.green_agents):
             agent.ID = (i+1)*100/self.n_green
+            # Calculer la zone de hauteur à couvrir pour chaque agent
+            height_per_agent = self.grid.height // self.n_green
+            start_height = i * height_per_agent
+            end_height = (i + 1) * height_per_agent - 1 if i < self.n_green - 1 else self.grid.height - 1
+            agent.coverage_zone = (start_height, end_height)
+
             green_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_GREEN[1]), random.randint(0, self.grid.height - 1))
             self.grid.place_agent(agent, green_pos)
             # Mise à jour initiale de son knowledge
@@ -120,6 +126,12 @@ class RobotMission(Model):
         # Robot jaune dans la zone verte ou jaune
         for i, agent in enumerate(self.yellow_agents):
             agent.ID = (i+1)*100/self.n_yellow
+            # Calculer la zone de hauteur à couvrir pour chaque agent
+            height_per_agent = self.grid.height // self.n_green
+            start_height = i * height_per_agent
+            end_height = (i + 1) * height_per_agent - 1 if i < self.n_green - 1 else self.grid.height - 1
+            agent.coverage_zone = (start_height, end_height)
+
             yellow_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_YELLOW[1]), random.randint(0, self.grid.height - 1))
             self.grid.place_agent(agent, yellow_pos)
             # Mise à jour initiale de son knowledge
@@ -130,6 +142,12 @@ class RobotMission(Model):
         # Robot rouge dans la zone verte, jaune ou rouge
         for i, agent in enumerate(self.red_agents):
             agent.ID = (i+1)*100/self.n_red
+            # Calculer la zone de hauteur à couvrir pour chaque agent
+            height_per_agent = self.grid.height // self.n_green
+            start_height = i * height_per_agent
+            end_height = (i + 1) * height_per_agent - 1 if i < self.n_green - 1 else self.grid.height - 1
+            agent.coverage_zone = (start_height, end_height)
+
             red_pos = (random.randint(self.ZONE_GREEN[0], self.ZONE_RED[1]), random.randint(0, self.grid.height - 1))
             self.grid.place_agent(agent, red_pos)
             # Mise à jour initiale de son knowledge
@@ -187,22 +205,24 @@ class RobotMission(Model):
 
     def do(self, agent, action):
         """Exécute une action et retourne les nouvelles perceptions."""
-        print(f"{agent.robot_type} robot at {agent.pos} doing: {action}")
+        #print(f"{agent.robot_type} robot at {agent.pos} doing: {action}")
 
         # Différentes actions possibles fonction de la stratégie    
         if action == "search_waste":
             self.searching_waste(agent)
+        elif action == "search_waste_4":
+            self.searching_waste_4(agent)
         
         elif action == "move_left":
-            print(f"{agent.robot_type} robot moving left")
+            #print(f"{agent.robot_type} robot moving left")
             self.move_to_target(agent, (agent.pos[0] - 1, agent.pos[1]))
         
         elif action == "move_right":
-            print(f"{agent.robot_type} robot moving right")
+            #print(f"{agent.robot_type} robot moving right")
             self.move_to_target(agent, (agent.pos[0] + 1, agent.pos[1]))
 
         elif action == "move_up":
-            print(f"{agent.robot_type} robot moving up")
+            #print(f"{agent.robot_type} robot moving up")
             self.move_to_target(agent, (agent.pos[0], agent.pos[1] + 1))
         
         elif action == "move_down":
@@ -229,7 +249,7 @@ class RobotMission(Model):
             agent.inventory = []
             agent.weight_inventory = 0
             agent.just_dropped = True #Flag pour empêcher de ramasser un déchet juste après avoir déposé
-            print(f"{agent.robot_type} robot dropped waste")
+            #print(f"{agent.robot_type} robot dropped waste")
             
             
         elif action == "deliberate_1_go_to_drop":
@@ -249,7 +269,7 @@ class RobotMission(Model):
                     agent.weight_inventory += 1 if agent.robot_type != "red" else 2
                     agent.got_waste = True
                     self.grid.remove_agent(obj)
-                    print(f"{agent.robot_type} robot collected a {obj.waste_type} waste")
+                    #print(f"{agent.robot_type} robot collected a {obj.waste_type} waste")
 
                     #data collector
                     self.total_collected_wastes += 1
@@ -276,14 +296,14 @@ class RobotMission(Model):
                 #self.yellow_wastes_remaining+=1
                 self.latent_green-=2
                 self.latent_yellow+=1
-                print("fusion yellow")
+                #print("fusion yellow")
             elif agent.robot_type == "yellow":
                 waste = Waste(self, waste_type="red")
                 agent.inventory=[waste]
                 agent.weight_inventory += 2
                 #self.red_wastes_remaining+=1
                 self.latent_yellow-=2
-                print("fusion red")
+                #print("fusion red")
             
             #data collector
             self.fused_wastes_count += 1
@@ -301,9 +321,10 @@ class RobotMission(Model):
         # Vérifier si la position cible est dans les zones autorisées du robot
         if self.is_position_allowed(agent, target_pos):
             self.grid.move_agent(agent, target_pos)
-            print(f"{agent.robot_type} robot moved to {target_pos}")
+            #prin(f"{agent.robot_type} robot moved to {target_pos}")
         else:
-            print(f"{agent.robot_type} robot cannot move from {agent.pos}")
+            None
+            #print(f"{agent.robot_type} robot cannot move from {agent.pos}")
 
 
     def checkwaste(self, agent):
@@ -322,6 +343,8 @@ class RobotMission(Model):
         return False, None  # Aucun déchet trouvé à proximité
 
 
+
+
     def searching_waste(self, agent):
         """Déplace l'agent de manière aléatoire dans sa zone autorisée sauf si il voit un waste il le ramasse."""
         possible_moves = []
@@ -329,6 +352,24 @@ class RobotMission(Model):
         # Obtenir toutes les cellules voisines
         neighbors = self.grid.get_neighborhood(agent.pos, moore=False, include_center=False)
         neighbors = [pos for pos in neighbors if pos != agent.pos]  # Enlever la case correspondant à la position de l'agent
+
+        for pos in neighbors:
+            if self.is_position_allowed(agent, pos):
+                possible_moves.append(pos)
+
+        #Mouvement aléatoire si aucun déchet trouvé
+        if possible_moves:
+            new_position = random.choice(possible_moves)
+            self.grid.move_agent(agent, new_position)
+
+
+    def searching_waste_4(self, agent):
+        """Déplace l'agent de manière aléatoire dans sa zone autorisée sauf si il voit un waste il le ramasse."""
+        possible_moves = []
+        
+        # Obtenir toutes les cellules voisines
+        neighbors = self.grid.get_neighborhood(agent.pos, moore=False, include_center=False)
+        neighbors = [pos for pos in neighbors if pos != agent.pos and agent.coverage_zone[0] <= pos[1] <= agent.coverage_zone[1]]  # Enlever la case correspondant à la position de l'agent et hors zone divided agent
 
         for pos in neighbors:
             if self.is_position_allowed(agent, pos):
@@ -349,9 +390,10 @@ class RobotMission(Model):
         new_position = (current_x + 1, current_y)
         if self.is_position_allowed(agent, new_position):
             self.grid.move_agent(agent, new_position)
-            print(f"{agent.robot_type} robot moved right towards column {target_column}, now at {new_position}")
+            #print(f"{agent.robot_type} robot moved right towards column {target_column}, now at {new_position}")
         else:
-            print(f"{agent.robot_type} robot cannot move right from {agent.pos}")
+            None
+            #print(f"{agent.robot_type} robot cannot move right from {agent.pos}")
     
     def is_position_allowed(self, agent, position):
         """Vérifie si la position est autorisée pour le robot."""
@@ -387,7 +429,22 @@ class RobotMission(Model):
             return agent.pos[0] == self.ZONE_YELLOW[1] and agent.pos[1] == self.grid.height - 1
         elif agent.robot_type == "red":
             return agent.pos[0] == self.ZONE_RED[1]
-        
+
+
+    def deliberate_4_checkdrop(self, agent):
+        """Vérifie si un robot est sur la case du haut de la dernière colonne de sa zone propre (divided)."""
+        if agent.robot_type == "green":
+            return agent.pos[0] == self.ZONE_GREEN[1] and agent.pos[1] == agent.coverage_zone[1]
+        elif agent.robot_type == "yellow":
+            return agent.pos[0] == self.ZONE_YELLOW[1] and agent.pos[1] == agent.coverage_zone[1]
+        elif agent.robot_type == "red":
+            return agent.pos[0] == self.ZONE_RED[1]
+    
+
+    def change_strategy(self, new_strategy): 
+        """Change la stratégie de l'agent."""
+        self.strategy = new_strategy
+
 
     def step(self):
         """Avance la simulation d'un pas."""
@@ -397,5 +454,6 @@ class RobotMission(Model):
         self.datacollector.collect(self)
         for agent in list(self.agents):
             if isinstance(agent, (GreenRobot, YellowRobot, RedRobot)):
-                print(type(agent))
+                #print(type(agent))
                 agent.step_agent()
+                print(self.strategy)

@@ -4,6 +4,7 @@
 
 from mesa import Agent
 import random
+import numpy as np
 
 class RobotAgent(Agent):
     """Classe de base pour tous les types de robots."""
@@ -19,6 +20,10 @@ class RobotAgent(Agent):
         self.go_fuze = False
         self.just_dropped = False
         self.ID = 0  # ID unique du robot
+        self.coverage_zone = (None, None)
+        self.just_spawned = True  # Indique si le robot vient d'apparaître
+        self.random_direction = 0
+
 
     def step_agent(self):
         """Mise à jour des perceptions"""
@@ -30,6 +35,8 @@ class RobotAgent(Agent):
             action = self.deliberate_2(self.knowledge)
         elif self.model.strategy == 3: #OnebyOne
             action = self.deliberate_3(self.knowledge)
+        elif self.model.strategy == 4: #OnebyOneDivided
+            action = self.deliberate_4(self.knowledge)
             
 
         # Exécution de l'action et mise à jour des perceptions
@@ -44,6 +51,10 @@ class RobotAgent(Agent):
         pass
 
     def deliberate_2(self, knowledge):
+        """Détermine l'action à effectuer selon les perceptions. Cette méthode doit être surchargée."""
+        pass
+
+    def deliberate_3(self, knowledge):
         """Détermine l'action à effectuer selon les perceptions. Cette méthode doit être surchargée."""
         pass
 
@@ -153,7 +164,54 @@ class GreenRobot(RobotAgent):
             else:
                 return self.move_towards([self.model.ZONE_GREEN[-1], self.model.grid.height - 1])
 
-    
+
+    def deliberate_4(self, knowledge):
+        """Visited + ONEbyONEnSTEP + space divided"""
+
+        # Comportement initial : va à sa zone de dépôt
+        if self.pos == (self.model.ZONE_GREEN[-1], self.coverage_zone[1]):
+            self.just_spawned = False
+        if self.just_spawned:
+            return self.move_towards((self.model.ZONE_GREEN[-1], self.coverage_zone[1]))
+
+        # annule coverage zone à la fin pour fucionner dechet séparer dans les différetnes decheteries
+        if self.random_direction == 5*(self.model.ZONE_GREEN[1]- self.model.ZONE_GREEN[0]) * (self.coverage_zone[1] - self.coverage_zone[0]):
+            self.model.change_strategy(3) #l'agent change sa propre strategy
+
+        # Si le robot n'a pas de déchet
+        if self.weight_inventory==0:
+
+            # Si Waste à proximité, il y va
+            is_waste, pos = self.model.checkwaste(self)
+            # On prend en compte le fait que la case de dépôt est une case de déchet où on ne veut pas aller pour ne pas faire des aller retour oscillant quand on y dépose un dechet
+            if pos and (pos == (self.model.ZONE_GREEN[-1], self.coverage_zone[1]) or not self.coverage_zone[0] <= pos[1] <= self.coverage_zone[1]): 
+                is_waste = False
+                pos = None
+
+            if is_waste:
+                self.random_direction = 0
+                return self.move_towards(pos)
+
+            # Rechercher des zones non visitées
+            else: 
+                unexplored = [pos for pos in knowledge.keys() if pos not in self.visited and self.coverage_zone[0] <= pos[1] <= self.coverage_zone[1]]
+                if unexplored:
+                    self.random_direction = 0
+                    return self.move_towards(random.choice(unexplored))  # Aller vers une zone inexplorée
+
+            # Si tout a été exploré, marcher aléatoirement
+            self.random_direction += 1
+            return "search_waste_4"
+        
+        # Si le robot a un déchet ou une fusion, se diriger vers la case de dépôt
+        elif self.weight_inventory==1 or self.weight_inventory==2:
+            if self.model.deliberate_4_checkdrop(self):
+                return "drop_waste"
+            else:
+                self.random_direction = 0
+                return self.move_towards([self.model.ZONE_GREEN[-1], self.coverage_zone[1]])
+            
+
 
 class YellowRobot(RobotAgent):
     """Robot qui peut se déplacer dans les zones jaune et la dernière colonne de la zone verte."""
@@ -251,6 +309,63 @@ class YellowRobot(RobotAgent):
         
         
     
+    def deliberate_4(self, knowledge):
+        """Visited + ONEbyONEnSTEP + divided"""
+
+        # Comportement initial : va à sa zone de dépôt
+        if self.pos == (self.model.ZONE_YELLOW[-1], self.coverage_zone[1]):
+            self.just_spawned = False
+        if self.just_spawned:
+            return self.move_towards((self.model.ZONE_YELLOW[-1], self.coverage_zone[1]))
+        
+        # annule coverage zone à la fin pour fucionner dechet séparer dans les différetnes decheteries
+        if self.random_direction == 5*(self.model.ZONE_YELLOW[1]- self.model.ZONE_YELLOW[0]) * (self.coverage_zone[1] - self.coverage_zone[0]):
+            self.model.change_strategy(3) #l'agent change sa propre strategy
+
+        # Va récupere les dechets dans la zone de dépot verte
+        if self.model.time_step % self.ID == 0:
+            self.go_fuze = True
+        if self.pos == (self.model.ZONE_GREEN[-1], self.coverage_zone[1]):
+            self.go_fuze = False
+
+
+        if self.go_fuze:
+            self.random_direction = 0
+            return self.move_towards([self.model.ZONE_GREEN[-1], self.coverage_zone[1]])
+        else : 
+            # Si le robot n'a pas de déchet
+            if self.weight_inventory==0:
+
+                # Si Waste à proximité, il y va
+                is_waste, pos = self.model.checkwaste(self)
+                # On prend en compte le fait que la case de dépôt est une case de déchet où on ne veut pas aller pour ne pas faire des aller retour oscillant quand on y dépose un dechet
+                if pos and (pos == (self.model.ZONE_YELLOW[-1], self.coverage_zone[1]) or not self.coverage_zone[0] <= pos[1] <= self.coverage_zone[1]): 
+                    is_waste = False
+                    pos = None
+
+                if is_waste:
+                    self.random_direction = 0
+                    return self.move_towards(pos)
+
+                # Rechercher des zones non visitées
+                else: 
+                    unexplored = [pos for pos in knowledge.keys() if pos not in self.visited and self.coverage_zone[0] <= pos[1] <= self.coverage_zone[1]]
+                    if unexplored:
+                        self.random_direction = 0
+                        return self.move_towards(random.choice(unexplored))  # Aller vers une zone inexplorée
+
+                # Si tout a été exploré, marcher aléatoirement
+                self.random_direction += 1
+                return "search_waste_4"
+            
+            # Si le robot a un déchet ou une fusion, se diriger vers la case de dépôt
+            elif self.weight_inventory==1 or self.weight_inventory==2:
+                if self.model.deliberate_4_checkdrop(self):
+                    return "drop_waste"
+                else:
+                    self.random_direction = 0
+                    return self.move_towards([self.model.ZONE_YELLOW[-1], self.coverage_zone[1]])
+            
 
 
 class RedRobot(RobotAgent):
@@ -347,12 +462,67 @@ class RedRobot(RobotAgent):
                 else:
                     return self.move_towards([self.model.ZONE_RED[-1], self.model.grid.height - 1])
         
-    
+
+
+    def deliberate_4(self, knowledge):
+        """Visited + ONEbyONEnSTEP + divided"""
+
+        # Comportement initial : va à sa zone de dépôt
+        if self.pos == (self.model.ZONE_RED[-1], self.coverage_zone[1]):
+            self.just_spawned = False
+        if self.just_spawned:
+            return self.move_towards((self.model.ZONE_RED[-1], self.coverage_zone[1]))
+        
+        # annule coverage zone à la fin pour fucionner dechet séparer dans les différetnes decheteries
+        if self.random_direction == 5*(self.model.ZONE_RED[1]- self.model.ZONE_RED[0]) * (self.coverage_zone[1] - self.coverage_zone[0]):
+            self.model.change_strategy(3) #l'agent change sa propre strategy
+
+
+        # Va récupere les dechets dans la zone de dépot verte
+        if self.model.time_step % self.ID == 0:
+            self.go_fuze = True
+        if self.pos == (self.model.ZONE_YELLOW[-1], self.coverage_zone[1]):
+            self.go_fuze = False
+
+        if self.go_fuze:
+            self.random_direction = 0
+            return self.move_towards([self.model.ZONE_YELLOW[-1], self.coverage_zone[1]])
+        else : 
+            # Si le robot n'a pas de déchet
+            if self.weight_inventory==0:
+
+                # Si Waste à proximité, il y va
+                is_waste, pos = self.model.checkwaste(self)
+                # On prend en compte le fait que la case de dépôt est une case de déchet où on ne veut pas aller pour ne pas faire des aller retour oscillant quand on y dépose un dechet
+                if pos and (pos == (self.model.ZONE_RED[-1], self.coverage_zone[1]) or not self.coverage_zone[0] <= pos[1] <= self.coverage_zone[1]): 
+                    is_waste = False
+                    pos = None
+
+                if is_waste:
+                    self.random_direction = 0
+                    return self.move_towards(pos)
+
+                # Rechercher des zones non visitées
+                else: 
+                    unexplored = [pos for pos in knowledge.keys() if pos not in self.visited and self.coverage_zone[0] <= pos[1] <= self.coverage_zone[1]]
+                    if unexplored:
+                        self.random_direction = 0
+                        return self.move_towards(random.choice(unexplored))  # Aller vers une zone inexplorée
+
+                # Si tout a été exploré, marcher aléatoirement
+                self.random_direction += 1
+                return "search_waste_4"
+            
+            # Si le robot a un déchet ou une fusion, se diriger vers la case de dépôt
+            elif self.weight_inventory==1 or self.weight_inventory==2:
+                if self.model.deliberate_4_checkdrop(self):
+                    return "drop_waste"
+                else:
+                    self.random_direction = 0
+                    return self.move_towards([self.model.ZONE_RED[-1], self.coverage_zone[1]])
+                
 
 """A FAIRE
-- Separer par zone agents (agent connaisse taille grille). Chaque agent se répartir verticalement les zones.
-Il y aura donc autant de zone de dépot de déchet qu''il y a de zones (ou encore qu'il y a de robots)
-- Gérer les déchets latents.
 
 - Mettre des murs
 """
