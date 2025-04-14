@@ -449,11 +449,9 @@ class RobotMission(Model):
     def step(self):
         """Avance la simulation d'un pas."""
         self.time_step += 1
-        #print("================================", self.strategy, "================================")
-        # Ne faire avancer que les robots, pas les objets Radioactivity
+        
         self.datacollector.collect(self)
         for agent in list(self.agents):
             if isinstance(agent, (GreenRobot, YellowRobot, RedRobot)):
-                #print(type(agent))
                 agent.step_agent()
-                print(self.strategy)
+                #print(self.strategy)

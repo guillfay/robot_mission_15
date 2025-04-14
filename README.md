@@ -28,19 +28,19 @@ Install the requirements in the file [`requirements.txt`]('./requirements.txt')
 ### 1. Introduction
 
 Through this project, we model the mission of robots that have to collect dangerous waste, transform it and then transport it to a secure area. The robots navigate in an environment broken down into several zones where the level of radioactivity varies from low radioactive to highly radioactive. Robots only have access to specific areas matching their radioactivity levels. 
-- **Green Zone** : low radioactivity zone
-- **Yellow Zone** : medium radioactivity zone
-- **Red Zone** : high radioactivity zone
+- **Green Zone** : low radioactivity zone. Green, yellow and red wastes can spawn there
+- **Yellow Zone** : medium radioactivity zone. Yellow and red wastes can spawn there
+- **Red Zone** : high radioactivity zone. Only red wastes can spawn there
 The goal of this project is to create a cleanup multi-agents model with the most efficient strategy to clear all the radioactive wastes in all 3 zones.
 
 ### 2. Agents
 
 As it was explained previously, there are 3 types of robots :
-- **Green Robot** can carry 2 green wastes at a time. Once it has picked up 2 green wastes, it merges them into 1 yellow waste and puts it in the green deposit zone. It can only move into the green zone.
-- **Yellow Robot** can carry 2 yellow wastes at a time. Once has picked up 2 yellow wastes, it merges them into 1 red waste and puts it in the yellow deposit zone. It can only move into the green and yellow zones.
+- **Green Robot** can carry 2 green wastes or 1 yellow waste at a time. Once it has picked up 2 green wastes, it merges them into 1 yellow waste. It can only move into the green zone.
+- **Yellow Robot** can carry 2 yellow wastes or 1 red waste at a time. Once has picked up 2 yellow wastes, it merges them into 1 red waste. It can only move into the green and yellow zones.
 - **Red Robot** can carry only 1 red waste at a time and and aims to put it in the red deposit zone. It can move into all zones.
 
-As a first approach, the agents only have a few features and caracteristics : they move randomly into their allocated areas, skipping the cells they have already visited and choosing in priority the cells that contain a wast of their type. They can pick up to two wastes, merge them, and move towards their allocated deposit zone
+As a first approach, the agents only have a few features and caracteristics : they move randomly into their allocated areas, skipping the cells they have already visited and choosing in priority the cells that contain a wast of their type. They can pick up to two wastes, merge them, and move towards their allocated deposit zone. But at the end, we defined 4 different strategies we will explain later on.
 
 ```mermaid
 classDiagram
@@ -55,10 +55,14 @@ classDiagram
         +bool go_fuze
         +bool just_dropped
         +int ID
+        +coverage_zone
+        +just_spawned
+        +random_direction
         +step_agent()
         +deliberate_1(knowledge)
         +deliberate_2(knowledge)
         +deliberate_3(knowledge)
+        +deliberate_4(knowledge)
         +move_towards(target_pos)
     }
     
@@ -66,16 +70,21 @@ classDiagram
         +deliberate_1(knowledge)
         +deliberate_2(knowledge)
         +deliberate_3(knowledge)
+        +deliberate_4(knowledge)
     }
     
     class YellowRobot {
         +deliberate_1(knowledge)
         +deliberate_2(knowledge)
+        +deliberate_3(knowledge)
+        +deliberate_4(knowledge)
     }
 
     class RedRobot {
         +deliberate_1(knowledge)
         +deliberate_2(knowledge)
+        +deliberate_3(knowledge)
+        +deliberate_4(knowledge)
     }
     
     RobotAgent <|-- GreenRobot
@@ -85,7 +94,7 @@ classDiagram
 
 **Attributes** like `knowledge`, `inventory`, `weight_inventory`, `visited`, and `allowed_zones` allow each robot to track its environment, carried waste, and movement restrictions.
 
-**Methods** such as `step_agent` control the robot's behavior at each simulation step, deciding on actions based on a strategy (`deliberate_1`, `deliberate_2`, `deliberate_3`). Movement is managed with `move_towards`, and robots decide to pick up or drop waste according to their perceptions and inventory status.
+**Methods** such as `step_agent` control the robot's behavior at each simulation step, deciding on actions based on a strategy (`deliberate_1`, `deliberate_2`, `deliberate_3`, `deliberate_4`). Movement is managed with `move_towards`, and robots decide to pick up or drop waste according to their perceptions and inventory status.
 
 The three `deliberate` methods represent different exploration strategies and will be detailed further on: random exploration (`deliberate_1`), targeted exploration of unvisited cells (`deliberate_2`), and a systematic "one-by-one" exploration (`deliberate_3`).
 
