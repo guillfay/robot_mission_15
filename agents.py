@@ -46,21 +46,21 @@ class RobotAgent(Agent):
         self.visited.add(self.pos)  
     
 
-    def deliberate_1(self, knowledge):
-        """Détermine l'action à effectuer selon les perceptions. Cette méthode doit être surchargée."""
-        pass
+    # def deliberate_1(self, knowledge):
+    #     """Détermine l'action à effectuer selon les perceptions. Cette méthode doit être surchargée."""
+    #     pass
 
-    def deliberate_2(self, knowledge):
-        """Détermine l'action à effectuer selon les perceptions. Cette méthode doit être surchargée."""
-        pass
+    # def deliberate_2(self, knowledge):
+    #     """Détermine l'action à effectuer selon les perceptions. Cette méthode doit être surchargée."""
+    #     pass
 
-    def deliberate_3(self, knowledge):
-        """Détermine l'action à effectuer selon les perceptions. Cette méthode doit être surchargée."""
-        pass
+    # def deliberate_3(self, knowledge):
+    #     """Détermine l'action à effectuer selon les perceptions. Cette méthode doit être surchargée."""
+    #     pass
 
-    def deliberate_3(self, knowledge):
-        """Détermine l'action à effectuer selon les perceptions. Cette méthode doit être surchargée."""
-        pass
+    # def deliberate_4(self, knowledge):
+    #     """Détermine l'action à effectuer selon les perceptions. Cette méthode doit être surchargée."""
+    #     pass
 
     def move_towards(self, target_pos):
         """Renvoie une action pour aller vers target_pos."""
@@ -520,9 +520,3 @@ class RedRobot(RobotAgent):
                 else:
                     self.random_direction = 0
                     return self.move_towards([self.model.ZONE_RED[-1], self.coverage_zone[1]])
-                
-
-"""A FAIRE
-
-- Mettre des murs
-"""
