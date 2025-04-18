@@ -160,7 +160,7 @@ By running server.py, a visulization window opens, allowing to see the simulatio
 
 For this first iteration, we implemented 3 differents strategies, which can be changed using the corresponding cursor on the server web page.
 
-- **Strategy 1**: agents move totally randomly in their allowed area and try to get a waste. When exactly two wastes are collected, they move towards the deposit zone on the far right and drop a merge waste of another color
+- **Strategy 1**: agents move totally randomly in their allowed area and try to get a waste. When exactly two wastes are collected, they move towards the deposit zone on the far right and drop a merge waste of another color.
 
 ![Strategy 1 Illustration](./strat1_illus.png)
 
@@ -203,6 +203,7 @@ Parameters are fixed as following:
 ![Strategy 1 Performance](./strat1.png)
 
 **Strategy 2**
+
 ![Strategy 2 Performance](./strat2.png)
 
 **Strategy 3**
