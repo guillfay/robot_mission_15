@@ -162,25 +162,25 @@ For this first iteration, we implemented 3 differents strategies, which can be c
 
 - **Strategy 1**: agents move totally randomly in their allowed area and try to get a waste. When exactly two wastes are collected, they move towards the deposit zone on the far right and drop a merge waste of another color.
 
-![Strategy 1 Illustration](./strat1_illus.png)
+![Strategy 1 Illustration](./images/strat1_illus.png)
 
 
 - **Strategy 2**: agents move randomly in their allowed area, directy going to a corresponding waste in their neighborhood (if its inventory isn't full) or avoiding the areas it has already visited, and try to get a waste. When exactly two wastes are collected, they move towards the deposit zone on the far right and drop a merge waste of another color.
 
 
-![Strategy 2 Illustration](./strat2_illus.png)
+![Strategy 2 Illustration](./images/strat2_illus.png)
 
 
 - **Strategy 3**: agents move randomly in their allowed area, directy going to a corresponding waste in their neighborhood (if its inventory isn't full) or avoiding the areas it has already visited, and try to get a waste. To avoid any latent waste (for example, an agent that has picked up a waste but can't find another one to merge), each agent goes to an intermediate desposit zone (1 cell) and drops the single waste he has. If a waste is already in the deposit zone, he picks up two wastes and merges them. The he goes to the deposit zone of the next color. Note : to optimize displacement of the agents, deposit zone for agents green and yellow are the same.
 
 
-![Strategy 3 Illustration](./strat3_illus.png)
+![Strategy 3 Illustration](./images/strat3_illus.png)
 
 
 - **Strategy 4**: It's the same as the strategy 3 except that the space is vertically equally divided among the differents bots. For this strategy to work properly, there should be an equal number of bots in each area. This strategy speeds up waste collection, as no robot has to scour the entire map from top to bottom to deposit its waste. But a problem arises when there are 2 items of the same color in 2 different deposit zones. In order for these wastes to be merged one day, the robots will switch from strategy 4 to 3 after a certain period of time. They change strategy when they have made a certain number of random moves (this means that all, or almost all, zones have been visited, and the game is well advanced).
 
 
-![Strategy 4 Illustration](./strat4_illus.png)
+![Strategy 4 Illustration](./images/strat4_illus.png)
 
 
 
@@ -200,19 +200,19 @@ Parameters are fixed as following:
 
 **Strategy 1**
 
-![Strategy 1 Performance](./strat1.png)
+![Strategy 1 Performance](./images/strat1.png)
 
 **Strategy 2**
 
-![Strategy 2 Performance](./strat2.png)
+![Strategy 2 Performance](./images/strat2.png)
 
 **Strategy 3**
 
-![Strategy 3 Performance](./strat3.png)
+![Strategy 3 Performance](./images/strat3.png)
 
 **Strategy 4**
 
-![Strategy 4 Performance](./strat4.png)
+![Strategy 4 Performance](./images/strat4.png)
 
 **Comparison Table**
 
