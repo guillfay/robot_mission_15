@@ -87,10 +87,10 @@ model_params = {
     
     "strategy": {
         "type": "SliderInt",
-        "value": 3,
+        "value": 4,
         "label": "Strategy",
         "min": 1,
-        "max": 3,
+        "max": 4,
         "step": 1},
     
 }
