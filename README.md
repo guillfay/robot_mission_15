@@ -10,7 +10,7 @@ The goal of this project is to create differents agents in an environment that a
 
 ## Requirements
 
-Install the requirements in the file [`requirements.txt`]('./requirements.txt')
+Install the requirements in the file `requirements.txt`.
 
 ## Run the simulation environment
 
